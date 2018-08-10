@@ -25,26 +25,34 @@ app.use(session({
 }))
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.get('/', (req, res) => {
+const errors = {
+    EMPTY_FILE: 'cannot upload empty files'
+}
+
+app.get('/helloworld', (req, res) => {
     res.send(`<html>
     <head>
-        <title>files</title>
+        <title>hola mundo</title>
     </head>
     <body>
-        <h1>welcome to files!</h1>
-        please, <a href="/register">register</a> or <a href="/login">login</a>.
+        <h1>hello world!</h1>
     </body>
 </html>`)
 })
 
 app.get('/files', (req, res) => {
+    //const { query: { error } } = req
+    const files = fs.readdirSync('files')
+
+    let errorMessage
+
     const { session } = req
 
-    try {
-        if (logic.isLoggedIn(session.username)) {
-            const files = fs.readdirSync('files')
+    if (logic.isLoggedIn(session.username)) {
 
-            res.send(`<html>
+        if (session.error) errorMessage = errors[session.error]
+
+        res.send(`<html>
     <head>
         <title>files</title>
         <link href="styles.css" rel="stylesheet">
@@ -59,14 +67,22 @@ app.get('/files', (req, res) => {
             <input type="file" name="upload">
             <button type="submit">upload</button>
         </form>
+
+        ${errorMessage ? `<h2 class="error">${errorMessage}</h2>` : ''}
     </body>
 </html>`)
 
-        } else {
-            res.redirect('/')
-        }
-    } catch ({ message }) {
-        res.redirect('/')
+    } else {
+        res.send(`<html>
+    <head>
+        <title>files</title>
+        <link href="styles.css" rel="stylesheet">
+        <link href="skylab-icon.png" type="image/png" rel="Shortcut Icon">
+    </head>
+    <body>
+        please, proceed to login to access files
+    </body>
+</html>`)
     }
 })
 
@@ -92,8 +108,6 @@ app.post('/files', (req, res) => {
 })
 
 app.get('/register', (req, res) => {
-    const { session: { error } } = req
-
     res.send(`<html>
     <head>
         <title>files</title>
@@ -108,14 +122,12 @@ app.get('/register', (req, res) => {
             <input type="password" name="password">
             <button type="submit">register</button>
         </form>
-
-        ${error ? `<h2 class="error">${error}</h2>` : ''}
     </body>
 </html>`)
 })
 
 app.post('/register', (req, res) => {
-    const { session, body: { username, password } } = req
+    const { body: { username, password } } = req
 
     try {
         logic.register(username, password)
@@ -127,19 +139,24 @@ app.post('/register', (req, res) => {
                 <link href="skylab-icon.png" type="image/png" rel="Shortcut Icon">
             </head>
             <body>
-                ok, user ${username} successfully registered, now you can go to <a href="/login" {session.error = ''} >login</a>
+                <h1>ok, user ${username} successfully registered</h1>
             </body>
         </html>`)
-    } catch ({ message }) {
-        session.error = message
-
-        res.redirect('/register')
+    } catch ({message}) {
+        res.send(`<html>
+            <head>
+                <title>files</title>
+                <link href="styles.css" rel="stylesheet">
+                <link href="skylab-icon.png" type="image/png" rel="Shortcut Icon">
+            </head>
+            <body>
+                <h1>Error: ${message}</h1>
+            </body>
+        </html>`)
     }
 })
 
 app.get('/login', (req, res) => {
-    const { session: { error } } = req
-
     res.send(`<html>
     <head>
         <title>files</title>
@@ -154,26 +171,27 @@ app.get('/login', (req, res) => {
             <input type="password" name="password">
             <button type="submit">login</button>
         </form>
-
-        ${error ? `<h2 class="error">${error}</h2>` : ''}        
     </body>
 </html>`)
 })
 
 app.post('/login', (req, res) => {
-    const { session, body: { username, password } } = req
+    const { body: { username, password }, session } = req
 
-    try {
-        logic.login(username, password)
+    logic.login(username, password)
 
-        session.username = username
+    session.username = username
 
-        res.redirect('/files')
-    } catch ({ message }) {
-        session.error = message
-
-        res.redirect('/login')
-    }
+    res.send(`<html>
+    <head>
+        <title>files</title>
+        <link href="styles.css" rel="stylesheet">
+        <link href="skylab-icon.png" type="image/png" rel="Shortcut Icon">
+    </head>
+    <body>
+        <h1>${logic.isLoggedIn(session.username) ? `ok, user ${username} successfully logged in` : `ko, user ${username} failed to log in`}</h1>
+    </body>
+</html>`)
 })
 
 app.listen(port, () => console.log(`${package.name} ${package.version} up and running on port ${port}`))
