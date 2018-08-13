@@ -1,0 +1,30 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  meta(http-equiv='X-UA-Compatible' content='ie=edge')
+  title FILES
+  link(rel='stylesheet' href='normalize.css')
+  link(rel='stylesheet' href='style.css')
+.screen
+  h1 FILES
+    span.blink _
+  img.image(src='./default-image.png')
+  nav
+    | &gt; 
+    a(href='/files') files
+    | 
+    | profile
+    | 
+    a(href='/logout') logout
+
+    p to change your password, enter the current password, introduce your new passord twice and confirm
+
+  form(action='/profile' method='post')
+      input(type='password' name='password' placeholder='password' autofocus='' autocomplete='off')
+      br
+      input(type='password' name='newpassword' placeholder='newpassword' autocomplete='off')
+      input(type='password' name='newpassword' placeholder='newpassword' autocomplete='off')
+      button(type='submit') update
+      
+      h2.error #{session.updateError}
