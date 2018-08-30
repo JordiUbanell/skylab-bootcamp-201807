@@ -1,6 +1,5 @@
 const validateEmail = require('../utils/validate-email')
 const validateUrl = require('../utils/validate-url')
-const moment = require('moment')
 const { Product, Story, User } = require('../data/models')
 
 const logic = {
@@ -13,7 +12,6 @@ const logic = {
     },
 
     _validateDateField(name, field) {
-        debugger
         if (!(field instanceof Date)) throw new LogicError(`invalid ${name}`)
     },
 
@@ -22,7 +20,7 @@ const logic = {
     },
 
     _validateUrl(name, url) {
-        if (!validateUrl(url)) throw new LogicError(`invalid ${name}`)  
+        if (!validateUrl(url)) throw new LogicError(`invalid ${name}`)
     },
 
     register(email, password) {
@@ -101,8 +99,7 @@ const logic = {
 
     addProduct(email, title, photo, link, date) {
         return Promise.resolve()
-        .then(() => {
-            debugger
+            .then(() => {
                 this._validateEmail(email)
                 this._validateDateField('date', date)
                 this._validateStringField('title', title)
@@ -121,51 +118,96 @@ const logic = {
             .then(() => true)
     },
 
-    listProducts(email, date) {
-            return Promise.resolve()
-                .then(() => {
-                    this._validateEmail(email)
+    removeProduct(email, productId) {
+        return Promise.resolve()
+            .then(() => {
+                this._validateEmail(email)
 
-                    return User.findOne({ mail })
+                return User.findOne({ email })
+            })
+            .then(user => {
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+
+                return Product.findOne({ _id: productId })
+                    .then(product => {
+                        if (!product) throw new LogicError(`product with id ${productId} does not exist`)
+        
+                        if (product.user.toString() !== user.id) throw new LogicError('product does not belong to user')
+                        
+                        const pos = user.products.indexOf(productId)
+
+                        user.products.splice(pos, 1)
+
+                        return user.save()
+
+                    })
                 })
-                .then(user => {
-                    if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                    const mDate = moment(date)
-                })
+            .then(() => {
+                return Product.deleteOne({ _id: productId })
+            })
+            .then(() => {
+                return true
+            })
+    },
+
+
+    listProducts(email) {
+        return Promise.resolve()
+            .then(() => {
+                this._validateEmail(email)
+                return User.findOne({ email })
+            })
+            .then(user => {
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                return Product.find({ user: user._id }, { __v: 0 }).lean()
+            })
+            .then(products => {
+                if (products) {
+                    products.forEach(product => {
+                        product.id = product._id.toString()
+
+                        delete product._id
+
+                        delete product.user
+                    })
+                }
+                return products || []
+            })
     }
-
-    // listNotes(email, date) {
-    //     return Promise.resolve()
-    //         .then(() => {
-    //             this._validateEmail(email)
-
-    //             return User.findOne({ email })
-    //         })
-    //         .then(user => {
-    //             if (!user) throw new LogicError(`user with ${email} email does not exist`)
-
-    //             const mDate = moment(date)
-
-    //             const minDate = mDate.startOf('day').toDate()
-    //             const maxDate = mDate.endOf('day').toDate()
-
-    //             return Note.find({ user: user._id, date: { $gte: minDate, $lte: maxDate } }, { __v: 0 }).lean()
-    //         })
-    //         .then(notes => {
-    //             if (notes) {
-    //                 notes.forEach(note => {
-    //                     note.id = note._id.toString()
-
-    //                     delete note._id
-
-    //                     delete note.user
-    //                 })
-    //             }
-
-    //             return notes || []
-    //         })
-    // }
 }
+
+// listNotes(email, date) {
+//     return Promise.resolve()
+//         .then(() => {
+//             this._validateEmail(email)
+
+//             return User.findOne({ email })
+//         })
+//         .then(user => {
+//             if (!user) throw new LogicError(`user with ${email} email does not exist`)
+
+//             const mDate = moment(date)
+
+//             const minDate = mDate.startOf('day').toDate()
+//             const maxDate = mDate.endOf('day').toDate()
+
+//             return Note.find({ user: user._id, date: { $gte: minDate, $lte: maxDate } }, { __v: 0 }).lean()
+//         })
+//         .then(notes => {
+//             if (notes) {
+//                 notes.forEach(note => {
+//                     note.id = note._id.toString()
+
+//                     delete note._id
+
+//                     delete note.user
+//                 })
+//             }
+
+//             return notes || []
+//         })
+// }
+
 
 
 class LogicError extends Error {

@@ -20,7 +20,7 @@ describe('logic', () => {
 
     beforeEach(() =>
         Promise.all([
-            // Note.deleteMany(),
+            Product.deleteMany(),
             User.deleteMany()
         ])
             .then(() => {
@@ -413,6 +413,64 @@ describe('logic', () => {
 
     })
 
+    true && describe('remove product', () => {
+        let products = [
+            { date: new Date(), title: 'text 1' },
+            { date: new Date(), title: 'text 2' },
+            { date: new Date(), title: 'text 3' },
+            { date: new Date(), title: 'text 4' }
+        ]
+
+        let productId
+
+        beforeEach(() =>
+            new User({ email, password }).save()
+                .then(user => {
+                    const userId = user.id
+
+                    const productsPromises = products.map(product => {
+                        product.user = ObjectId(userId)
+
+                        return Product.create(product)
+                    })
+
+                    return Promise.all(productsPromises)
+                        .then(products => {
+                            productId = products[0]._id.toString()
+
+                            products.forEach(({_id}) => {
+                                user.products.push(_id)
+                            })
+
+                            return user.save()
+                        })
+                })
+        )
+
+        it('should succeed to delete on correct product id', () => {
+            return logic.removeProduct(email, productId)
+                .then(res => {
+                    expect(res).to.be.true
+
+                    return User.findOne({ email })
+                })
+                .then(user => {
+                    expect(user.products.length).to.equal(products.length - 1)
+
+                    // expect(user.products).to.deep.equal(products)
+                })
+        })
+
+        // it('should fail on non existing product', () => {
+        //     const nonExistingId = ObjectId().toString()
+
+        //     return logic.removeProduct(email, nonExistingId)
+        //         .catch(err = err)
+        //         .then(({ message }) => expect(message).to.equal(`product with id ${nonExistingId} does not exist`))
+        // })
+
+    }),
+
     true && describe('list products by date', () => {
         let products = [
             { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1' },
@@ -423,17 +481,65 @@ describe('logic', () => {
         ]
 
         beforeEach(() =>
-            new User({email, password}).save()
+            User.create({ email, password })
                 .then(user => {
                     const userId = user.id
 
-                    products.forEeach(product => product.user = userId)
+                    products.forEach(product => product.user = userId)
 
                     return Product.insertMany(products)
                 })
                 .then(_products => products = _products.map(product => product._doc))
         )
+
+
+        it('should list all user products', () => {
+            return logic.listProducts(email)
+                .then(_products => {
+
+                    expect(_products.length).to.equal(products.length)
+
+                    const normalizedProducts = products.map(product => {
+                        product.id = product._id.toString()
+
+                        delete product._id
+
+                        delete product.user
+
+                        delete product.__v
+
+                        return product
+                    })
+
+                    expect(_products).to.deep.equal(normalizedProducts)
+                })
+        })
+
+
     })
+
+    // it('should list all user notes', () => {
+    //     return logic.listNotes(email, new Date('2018-08-24'))
+    //         .then(_notes => {
+    //             const expectedNotes = notes.slice(2)
+
+    //             expect(_notes.length).to.equal(expectedNotes.length)
+
+    //             const normalizedNotes = expectedNotes.map(note => {
+    //                 note.id = note._id.toString()
+
+    //                 delete note._id
+
+    //                 delete note.user
+
+    //                 delete note.__v
+
+    //                 return note
+    //             })
+
+    //             expect(_notes).to.deep.equal(normalizedNotes)
+    //         })
+    // })
 
     // true && describe('list notes by date', () => {
     //     let notes = [
@@ -469,4 +575,3 @@ describe('logic', () => {
             .then(() => _connection.disconnect())
     )
 })
-

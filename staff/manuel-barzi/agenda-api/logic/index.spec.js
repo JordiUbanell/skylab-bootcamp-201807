@@ -517,11 +517,11 @@ describe('logic', () => {
             return new User({ email, password }).save()
                 .then(user => {
                     contacts.map(contact => new Contact(contact)).forEach(contact => user.contacts.push(contact))
-                
+
                     return user.save()
                 })
                 .then(user => {
-                    contacts = user.contacts.map(({_doc}) => {
+                    contacts = user.contacts.map(({ _doc }) => {
                         const { _id, email, name, surname, phone } = _doc
 
                         return { id: _id.toString(), email, name, surname, phone }
