@@ -3,36 +3,19 @@ require('dotenv').config()
 const { logic } = require('.')
 const { expect } = require('chai')
 const mongoose = require('mongoose')
-const cloudinary = require('cloudinary')
 const { Types: { ObjectId } } = mongoose
 const { Product, Story, User } = require('../data/models')
 
 const { env: { MONGO_URL } } = process
 
 describe('logic', () => {
-    const email = `maider-${Math.random()}@mail.com`, password = `123-${Math.random()}`
+    const email = `persona-${Math.random()}@mail.com`, password = `123-${Math.random()}`
     let _connection
     let usersCount = 0
+
     before(() =>
         mongoose.connect(MONGO_URL, { useNewUrlParser: true })
             .then(conn => _connection = conn)
-    )
-
-    beforeEach(() =>
-        Promise.all([
-            Product.deleteMany(),
-            User.deleteMany()
-        ])
-            .then(() => {
-                let count = Math.floor(Math.random() * 100)
-
-                const creations = []
-
-                while (count--) creations.push({ email: `other-${Math.random()}@mail.com`, password: `123-${Math.random()}` })
-
-                if (usersCount = creations.length)
-                    return User.create(creations)
-            })
     )
 
     true && describe('validate fields', () => {
@@ -55,6 +38,27 @@ describe('logic', () => {
     })
 
     true && describe('register user', () => {
+        beforeEach(() =>
+            Promise.all([
+                Product.deleteMany(),
+                User.deleteMany()
+            ])
+                .then(() => {
+                    let count = Math.floor(Math.random() * 100)
+
+                    const creations = []
+
+                    while (count--) creations.push({ email: `other-${Math.random()}@mail.com`, password: `123-${Math.random()}` })
+
+                    if (usersCount = creations.length)
+                        return User.create(creations)
+                })
+        )
+
+        after(() => Promise.all([
+            User.deleteMany()
+        ]))
+
         it('should register correctly', () =>
             User.findOne({ email })
                 .then(user => {
@@ -124,6 +128,10 @@ describe('logic', () => {
     true && describe('authenticate user', () => {
         beforeEach(() => User.create({ email, password }))
 
+        after(() => Promise.all([
+            User.deleteMany()
+        ]))
+
         it('should login correctly', () =>
             logic.authenticate(email, password)
                 .then(res => {
@@ -172,6 +180,10 @@ describe('logic', () => {
         const newPassword = `${password}-${Math.random()}`
 
         beforeEach(() => User.create({ email, password }))
+
+        after(() => Promise.all([
+            User.deleteMany()
+        ]))
 
         it('should update password correctly', () =>
             logic.updatePassword(email, password, newPassword)
@@ -245,6 +257,10 @@ describe('logic', () => {
     true && describe('unregister user', () => {
         beforeEach(() => User.create({ email, password }))
 
+        after(() => Promise.all([
+            User.deleteMany()
+        ]))
+
         it('should unregister user correctly', () =>
             logic.unregisterUser(email, password)
                 .then(res => {
@@ -298,6 +314,12 @@ describe('logic', () => {
         const date = new Date(), title = 'my post about Lambretta', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803"
 
         beforeEach(() => User.create({ email, password }))
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
 
         it('should succeed on correct data', () =>
             logic.addProduct(email, title, photo, link, date)
@@ -393,6 +415,12 @@ describe('logic', () => {
                 .then(({ message }) => expect(message).to.equal(`invalid photo`))
         )
 
+        it('should fail on trying to add product with an incorrect url photo', () =>
+            logic.addProduct(email, title, 'kjsdfsk sdksdfj . ks', link, date)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid photo`))
+        )
+
         it('should fail on trying to add product with an undefined link', () =>
             logic.addProduct(email, title, photo, undefined, date)
                 .catch(err => err)
@@ -411,14 +439,20 @@ describe('logic', () => {
                 .then(({ message }) => expect(message).to.equal(`invalid link`))
         )
 
+        it('should fail on trying to add product with an incorrect url link', () =>
+            logic.addProduct(email, title, photo, 'kjsdfsk sdksdfj . ks', date)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid link`))
+        )
+
     })
 
     true && describe('remove product', () => {
         let products = [
-            { date: new Date(), title: 'text 1' },
-            { date: new Date(), title: 'text 2' },
-            { date: new Date(), title: 'text 3' },
-            { date: new Date(), title: 'text 4' }
+            { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date(), title: 'text 2', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date(), title: 'text 3', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date(), title: 'text 4', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
         ]
 
         let productId
@@ -438,7 +472,7 @@ describe('logic', () => {
                         .then(products => {
                             productId = products[0]._id.toString()
 
-                            products.forEach(({_id}) => {
+                            products.forEach(({ _id }) => {
                                 user.products.push(_id)
                             })
 
@@ -461,23 +495,28 @@ describe('logic', () => {
                 })
         })
 
-        // it('should fail on non existing product', () => {
-        //     const nonExistingId = ObjectId().toString()
+        it('should fail on non existing product', () => {
+            const nonExistingId = ObjectId().toString()
+            return logic.removeProduct(email, nonExistingId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`product with id ${nonExistingId} does not exist`))
+        })
 
-        //     return logic.removeProduct(email, nonExistingId)
-        //         .catch(err = err)
-        //         .then(({ message }) => expect(message).to.equal(`product with id ${nonExistingId} does not exist`))
-        // })
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
 
     }),
 
-    true && describe('list products by date', () => {
+    true && describe('list products', () => {
         let products = [
-            { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1' },
-            { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi' },
-            { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza' },
-            { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china' },
-            { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard' }
+            { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
         ]
 
         beforeEach(() =>
@@ -492,6 +531,11 @@ describe('logic', () => {
                 .then(_products => products = _products.map(product => product._doc))
         )
 
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
 
         it('should list all user products', () => {
             return logic.listProducts(email)
@@ -518,60 +562,234 @@ describe('logic', () => {
 
     })
 
-    // it('should list all user notes', () => {
-    //     return logic.listNotes(email, new Date('2018-08-24'))
-    //         .then(_notes => {
-    //             const expectedNotes = notes.slice(2)
+    true && describe('add story', () => {
+        const date = new Date(), text = 'explaining something about lambretta', like = 12
+        const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
+        let productId
 
-    //             expect(_notes.length).to.equal(expectedNotes.length)
+        beforeEach(() => {
+            return User.create({ email, password })
+                .then(user => {
+                    const userId = user._id
+                    return Product.create({ ...product, user: userId, date })
+                })
+                .then(product => {
+                    productId = product._id
+                })
+        })
 
-    //             const normalizedNotes = expectedNotes.map(note => {
-    //                 note.id = note._id.toString()
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
 
-    //                 delete note._id
+        it('should succeed on correct data', () => {
+            return logic.addStory(email, text, like, date, productId)
+                .then(res => {
+                    expect(res).to.be.true
 
-    //                 delete note.user
+                    return Story.find()
+                })
+                .then(stories => {
+                    expect(stories.length).to.equal(1)
 
-    //                 delete note.__v
+                    expect(stories[0].product.toString()).to.equal(productId.toString())
+                    expect(stories[0].text).to.equal(text)
+                    expect(stories[0].like).to.equal(like)
+                    expect(stories[0].date).to.deep.equal(date)
+                })
+        })
 
-    //                 return note
-    //             })
+        it('should fail on trying to add story with an undefined mail', () =>
+            logic.addStory(undefined, text, like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid email`))
+        )
 
-    //             expect(_notes).to.deep.equal(normalizedNotes)
+        it('should fail on trying to add story with an empty email', () =>
+            logic.addStory('', text, like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid email`))
+        )
+
+        it('should fail on trying to add story with a numeric email', () =>
+            logic.addStory(123, text, like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid email`))
+        )
+
+        it('should fail on trying to add story with an undefined date', () =>
+            logic.addStory(email, text, like, undefined, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid date'))
+        )
+
+        it('should fail on trying to add story with an empty date', () =>
+            logic.addStory(email, text, like, '', productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid date'))
+        )
+
+        it('should fail on trying to add story with a numeric date', () =>
+            logic.addStory(email, text, like, 123, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid date'))
+        )
+
+        it('should fail on trying to add story with an undefined text', () =>
+            logic.addStory(email, undefined, like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid text'))
+        )
+
+        it('should fail on trying to add story with an empty text', () =>
+            logic.addStory(email, '', like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid text'))
+        )
+
+        it('should fail on trying to add story with a numeric text', () =>
+            logic.addStory(email, 123, like, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal('invalid text'))
+        )
+
+        it('should fail on trying to add story with an undefined like', () =>
+            logic.addStory(email, text, undefined, date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid like`))
+        )
+
+        it('should fail on trying to add story with an empty like', () =>
+            logic.addStory(email, text, '', date, productId)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid like`))
+        )
+    })
+
+    // const date = new Date(), text = 'explaining something about lambretta', like = 12
+    // const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
+    // let productId
+
+    // beforeEach(() => {
+    //     return User.create({ email, password })
+    //         .then(user => {
+    //             const userId = user._id
+    //             return Product.create({ ...product, user: userId, date })
+    //         })
+    //         .then(product => {
+    //             productId = product._id
     //         })
     // })
 
-    // true && describe('list notes by date', () => {
-    //     let notes = [
-    //         { date: new Date('2018-08-20T12:10:15.474Z'), text: 'text 1' },
-    //         { date: new Date('2018-08-23T13:00:00.000Z'), text: 'cumple jordi' },
-    //         { date: new Date('2018-08-24T13:15:00.000Z'), text: 'pizza' },
-    //         { date: new Date('2018-08-24T13:19:00.000Z'), text: 'la china' },
-    //         { date: new Date('2018-08-24T13:21:00.000Z'), text: 'party hard' }
-    //     ]
 
-    //     beforeEach(() =>
-    //         new User({ email, password }).save()
-    //             .then(user => {
-    //                 const userId = user.id
+    !true && describe('list stories', () => {
+        let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            
+        let stories = [
+            {text: 'Story 1', like: 1, date: new Date()},
+            {text: 'Story 2', like: 2, date: new Date()}
+        ]
 
-    //                 notes.forEach(note => note.user = userId)
+        let productId, userId
 
-    //                 return Note.insertMany(notes)
-    //             })
-    //             .then(_notes => notes = _notes.map(note => note._doc))
-    //     )
+        beforeEach(() =>
+            User.create({ email, password })
+                .then(user => {
+                    userId = user.id
+    
+                    return Product.create({...product, user: ObjectId(userId)})
+                })
+                .then(product => {
+                    productId = product._id
 
+                    stories.forEach(story => {
+                        story.user = userId
+                        story.product = productId
+                    })
+                    
+                    debugger
+                    return Story.insertMany(stories)
+                })
+        )
 
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
 
+        it('should list all stories of one product', () => {
+            debugger
+            return logic.listStories(email, productId)
+                .then(stories => {
+                    debugger
+                })
+            })
+        })
 
+    !!true && describe('add likes to stories', () => {
+        let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            
+        let stories = [
+            {text: 'Story 1', like: 1, date: new Date()},
+            {text: 'Story 2', like: 2, date: new Date()}
+        ]
+
+        let productId, userId, storyId
+
+        beforeEach(() => {
+            return User.create({ email, password })
+                .then(user => {
+                    userId = user.id
+    
+                    return Product.create({...product, user: ObjectId(userId)})
+                })
+                .then(product => {
+                    productId = product._id
+
+                    stories.forEach(story => {
+                        story.user = userId
+                        story.product = productId
+                    })
+
+                    return Story.insertMany(stories)
+                })
+                .then(stories => {
+                    storyId = stories[0]._id
+                })
+        })
+
+        it('should toggle correctly', () => {
+            return logic.addLikeToStory(email, productId, storyId)
+                .then(res => {
+                    expect(res).to.be.true
+                    //TODO: Que la historia tiene 2 likes
+
+                    return logic.addLikeToStory(email, productId, storyId)
+                })
+
+                .then(res => {
+                    debugger
+                    return User.findById(userId)
+                })
+
+                // TODO: que el usuario tiene los likes que tocan
+                
+                .then((user) => {
+                    debugger
+                    expect(user.liked.length).to.equal(2)
+                })
+        })
+    })
 
     after(() =>
         Promise.all([
             Product.deleteMany(),
-            // Story.deleteMany(),
+            Story.deleteMany(),
             User.deleteMany()
         ])
-            .then(() => _connection.disconnect())
+        .then(() => _connection.disconnect())
     )
 })

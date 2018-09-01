@@ -4,9 +4,17 @@ const { Schema, Schema: { Types: { ObjectId } }} = require('mongoose')
 
 module.exports = new Schema({
 
-    title: String,
+    title: {
+        type: String,
+        required: true, 
+        minlength: 4,
+        maxlength: 90
+    },
 
-    photo: String,
+    photo: { 
+        type: String,
+        required: true
+    },
     
     link: String,
 
@@ -14,6 +22,11 @@ module.exports = new Schema({
         type: Date,
         required: true
     },
+
+    story: [{
+        type: ObjectId,
+        ref: 'Story'
+    }],
 
     user: {
         type: ObjectId,

@@ -4,9 +4,14 @@ const { Schema, Schema: { Types: { ObjectId } } } = require('mongoose')
 
 module.exports = new Schema({
 
-    text: String,
+    text: {
+        type: String,
+        required: true, 
+        minlength: 5,
+        maxlength: 999
+    },
     
-    likes: Number,
+    like: Number,
 
     date: {
         type: Date,

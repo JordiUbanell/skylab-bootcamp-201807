@@ -35,5 +35,14 @@ module.exports = new Schema({
         ref: 'Product'
     }],
     
-    stories: [Story]
+    stories: [{
+        type: ObjectId,
+        ref: 'Story'
+    }],
+
+    liked: [{
+            type: ObjectId,
+            ref: 'Story'
+
+    }]
 })
