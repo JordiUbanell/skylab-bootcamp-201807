@@ -37,6 +37,13 @@ describe('logic', () => {
         })
     })
 
+    // true && describe('validate mail to id', () => {
+    //     it('should succeed on correct value', () => {
+    //         expect(() => logic._emailToId('id', id).to.equal(id))
+    //     })
+
+    // })
+
     true && describe('register user', () => {
         beforeEach(() =>
             Promise.all([
@@ -510,57 +517,51 @@ describe('logic', () => {
 
     }),
 
-    true && describe('list products', () => {
-        let products = [
-            { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
-        ]
+        true && describe('list products', () => {
+            let products = [
+                { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            ]
 
-        beforeEach(() =>
-            User.create({ email, password })
-                .then(user => {
-                    const userId = user.id
+            beforeEach(() =>
+                User.create({ email, password })
+                    .then(user => {
+                        const userId = user.id
 
-                    products.forEach(product => product.user = userId)
+                        products.forEach(product => product.user = userId)
 
-                    return Product.insertMany(products)
-                })
-                .then(_products => products = _products.map(product => product._doc))
-        )
-
-        after(() => Promise.all([
-            Product.deleteMany(),
-            Story.deleteMany(),
-            User.deleteMany()
-        ]))
-
-        it('should list all user products', () => {
-            return logic.listProducts(email)
-                .then(_products => {
-
-                    expect(_products.length).to.equal(products.length)
-
-                    const normalizedProducts = products.map(product => {
-                        product.id = product._id.toString()
-
-                        delete product._id
-
-                        delete product.user
-
-                        delete product.__v
-
-                        return product
+                        return Product.insertMany(products)
                     })
+                    .then(_products => products = _products.map(product => product._doc))
+            )
 
-                    expect(_products).to.deep.equal(normalizedProducts)
-                })
+            after(() => Promise.all([
+                Product.deleteMany(),
+                Story.deleteMany(),
+                User.deleteMany()
+            ]))
+
+            it('should list all user products', () => {
+                return logic.listProducts(email)
+                    .then(_products => {
+
+                        expect(_products.length).to.equal(products.length)
+
+                        const normalizedProducts = products.map(product => {
+                            product.id = product._id.toString()
+
+                            delete product._id
+                            delete product.user
+                            delete product.__v
+                            return product
+                        })
+                        expect(_products).to.deep.equal(normalizedProducts)
+                    })
+            })
         })
-
-
-    })
 
     true && describe('add story', () => {
         const date = new Date(), text = 'explaining something about lambretta', like = 12
@@ -686,10 +687,10 @@ describe('logic', () => {
 
     !true && describe('list stories', () => {
         let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
-            
+
         let stories = [
-            {text: 'Story 1', like: 1, date: new Date()},
-            {text: 'Story 2', like: 2, date: new Date()}
+            { text: 'Story 1', like: 1, date: new Date() },
+            { text: 'Story 2', like: 2, date: new Date() }
         ]
 
         let productId, userId
@@ -698,9 +699,10 @@ describe('logic', () => {
             User.create({ email, password })
                 .then(user => {
                     userId = user.id
-    
-                    return Product.create({...product, user: ObjectId(userId)})
+
+                    return Product.create({ ...product, user: ObjectId(userId) })
                 })
+                
                 .then(product => {
                     productId = product._id
 
@@ -708,17 +710,10 @@ describe('logic', () => {
                         story.user = userId
                         story.product = productId
                     })
-                    
-                    debugger
+
                     return Story.insertMany(stories)
                 })
         )
-
-        after(() => Promise.all([
-            Product.deleteMany(),
-            Story.deleteMany(),
-            User.deleteMany()
-        ]))
 
         it('should list all stories of one product', () => {
             debugger
@@ -726,15 +721,21 @@ describe('logic', () => {
                 .then(stories => {
                     debugger
                 })
-            })
         })
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+    })
 
     !!true && describe('add likes to stories', () => {
         let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
-            
+
         let stories = [
-            {text: 'Story 1', like: 1, date: new Date()},
-            {text: 'Story 2', like: 2, date: new Date()}
+            { text: 'Story 1', like: 0, date: new Date() },
+            { text: 'Story 2', like: 0, date: new Date() }
         ]
 
         let productId, userId, storyId
@@ -743,8 +744,8 @@ describe('logic', () => {
             return User.create({ email, password })
                 .then(user => {
                     userId = user.id
-    
-                    return Product.create({...product, user: ObjectId(userId)})
+
+                    return Product.create({ ...product, user: ObjectId(userId) })
                 })
                 .then(product => {
                     productId = product._id
@@ -765,24 +766,94 @@ describe('logic', () => {
             return logic.addLikeToStory(email, productId, storyId)
                 .then(res => {
                     expect(res).to.be.true
-                    //TODO: Que la historia tiene 2 likes
-
+                    return User.findOne({ email })
+                })
+                .then(user => {
+                    expect(user.liked.length).to.equal(1)
                     return logic.addLikeToStory(email, productId, storyId)
                 })
 
                 .then(res => {
-                    debugger
-                    return User.findById(userId)
+                    expect(res).to.be.true
+                    return User.findOne({ email })
                 })
 
                 // TODO: que el usuario tiene los likes que tocan
-                
+
                 .then((user) => {
-                    debugger
-                    expect(user.liked.length).to.equal(2)
+                    expect(user.liked.length).to.equal(0)
                 })
         })
     })
+
+    true && describe('search by word', () => {
+        const date = new Date(), title = 'my post about my first elephant', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803", word = "elephant"
+
+        beforeEach(() => User.create({ email, password }))
+
+        it('should succeed on create a history with the word to search', () =>
+            logic.addProduct(email, title, photo, link, date, word)
+                .then(res => {
+                    expect(res).to.be.true
+                    return User.findOne({ email })
+                })
+                .then(user => {
+                    return Product.find({ user: user.id })
+                })
+        )
+
+        it('should succeed on search a product containing a word', () => {
+            return logic.searchWord(email, word)
+                .then((res) => {
+                    expect(res).to.exist
+                    expect(res.length).to.equal(1)
+                })
+        })
+
+        it('should fail on search a product containing an non existing word', () => {
+            return logic.searchWord(email, 'snake')
+                .catch(err => err)
+                .then(err => {
+                    expect(err).to.exist
+                    expect(err.message).to.equal('search snake: no match found')
+                })
+        })
+
+        it('should fail on search a product containing a void space', () => {
+            return logic.searchWord(email, '')
+                .catch(err => err)
+                .then(err => {
+                    expect(err).to.exist
+                    expect(err.message).to.equal('invalid word')
+                })
+        })
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+    })
+
+
+
+    // it('should fail on search a product containing a word', () =>
+    //     logic.searchWord(email, 'snake')
+    //         .then((res) => {
+    //             expect(res).to.equal(0)
+    //     .catch (err => err)
+    //         .then(({ message }) => expect(message).to.equal(`search snake: no match found`))
+    // )
+
+    // it('should fail on trying to add product with an undefined mail', () => {
+    //     logic.addProduct(undefined, title, photo, link, date)
+    //         .catch(err => err)
+    //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+    // })
+
+
+
+
 
     after(() =>
         Promise.all([
@@ -790,6 +861,6 @@ describe('logic', () => {
             Story.deleteMany(),
             User.deleteMany()
         ])
-        .then(() => _connection.disconnect())
+            .then(() => _connection.disconnect())
     )
 })

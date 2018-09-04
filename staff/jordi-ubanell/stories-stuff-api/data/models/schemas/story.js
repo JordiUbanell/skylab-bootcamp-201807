@@ -8,7 +8,7 @@ module.exports = new Schema({
         type: String,
         required: true, 
         minlength: 5,
-        maxlength: 999
+        maxlength: 1000
     },
     
     like: Number,

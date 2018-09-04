@@ -1,4 +1,11 @@
-const { Schema, Schema: { Types: { ObjectId } } } = require('mongoose')
+const {
+    Schema,
+    Schema: {
+        Types: {
+            ObjectId
+        }
+    }
+} = require('mongoose')
 const Story = require('./story')
 
 function validatePassword(password) {
@@ -34,15 +41,15 @@ module.exports = new Schema({
         type: ObjectId,
         ref: 'Product'
     }],
-    
+
     stories: [{
         type: ObjectId,
         ref: 'Story'
     }],
 
     liked: [{
-            type: ObjectId,
-            ref: 'Story'
+        type: ObjectId,
+        ref: 'Story'
 
     }]
 })
