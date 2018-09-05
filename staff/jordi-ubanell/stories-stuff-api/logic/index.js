@@ -4,11 +4,42 @@ const validateUrl = require('../utils/validate-url')
 const { Product, Story, User } = require('../data/models')
 const cloudinary = require('cloudinary')
 
-cloudinary.config({
-    presentname: "dli7dinrn",
-    cloudname: "293695636911358",
-    apikey: "6stBHNaJhgExbsCr_8ZlTmE-L0Q"
-})
+// config();
+// const { CLOUDINARY_CLOUD_NAME = "293695636911358", CLOUDINARY_API_KEY = "6stBHNaJhgExbsCr_8ZlTmE-L0Q", CLOUDINARY_API_SECRET ="6stBHNaJhgExbsCr_8ZlTmE-L0Q" } = process.env;
+
+// cloudinary.config({
+//     cloud_name: CLOUDINARY_CLOUD_NAME,
+//     api_key: CLOUDINARY_API_KEY,
+//     api_secret: CLOUDINARY_API_SECRET,
+//   });
+
+
+//   upload images by cloudinary
+
+//   const postLogic = {
+
+//     uploadTest(username: string, filename: string, buffer: Buffer) {
+//       return Promise.resolve()
+//         .then(() => {
+//           if (!filename) { throw new LogicError("invalid filename"); }
+//           if (!buffer) { throw new LogicError("invalid buffer"); }
+  
+//           return User.findOne({ username });
+//         })
+//         .then((user: UserModelInterface) => {
+//           if (!user) { throw new LogicError(`user with username ${username} does not exists`); }
+  
+//           return new Promise((resolve, reject) => {
+//             cloudinary.v2.uploader.upload_stream((error: any, result: any) => {
+//               if (error) {
+//                 return reject(new LogicError(`the file could not be uploaded ${filename}`));
+//               }
+//               resolve(true);
+//             }).end(buffer);
+//           });
+//         });
+//     },
+//    }
 
 const logic = {
     _validateStringField(name, value) {
@@ -19,9 +50,10 @@ const logic = {
         if (!validateEmail(email)) throw new LogicError('invalid email')
     },
 
-    _validateDateField(name, field) {
-        if (!(field instanceof Date)) throw new LogicError(`invalid ${name}`)
+    _validateDateField(name, value) {
+        if (typeof value === 'number' || isNaN(Date.parse(value))) throw new LogicError(`invalid ${name}`)
     },
+
 
     _validateNumber(name, value) {
         if (typeof value !== 'number') throw new Error(`invalid ${name}`)
@@ -30,10 +62,6 @@ const logic = {
     _validateUrl(name, url) {
         if (!validateUrl(url)) throw new LogicError(`invalid ${name}`)
     },
-
-    // _emailToId(email) {
-    //     if (!emailToId(email)) throw new LogicError('invalid email')
-    // },
 
     register(email, password) {
         return Promise.resolve()
@@ -123,6 +151,8 @@ const logic = {
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
+                date = new Date(date)
+
                 const product = { date, title, photo, link, user: user.id }
 
                 return Product.create(product)
@@ -134,6 +164,7 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
+                this._validateStringField("productId",productId)
 
                 return User.findOne({ email })
             })
@@ -152,15 +183,39 @@ const logic = {
 
                         return user.save()
                     })
-            })
-            .then(() => {
-                return Product.deleteOne({ _id: productId })
+                    .then(() => {
+                        return Product.deleteOne({ _id: productId })
+                    })
             })
             .then(() => {
                 return true
             })
     },
 
+    listAllProducts(email) {
+        return Promise.resolve()
+            .then(() => {
+                this._validateEmail(email)
+                return User.findOne({ email })
+            })
+            .then(user => {
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                // return Product.find({ user: user._id }, { __v: 0 }).lean()
+
+                return Product.find({ }, { __v: 0 }).lean()
+            })
+            .then(products => {
+                debugger
+                if (products) {
+                    products.forEach(product => {
+                        product.id = product._id.toString()
+
+                        delete product._id
+                    })
+                }
+                return products || []
+            })
+    },
 
     listProducts(email) {
         return Promise.resolve()
@@ -170,6 +225,8 @@ const logic = {
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                // return Product.find({ user: user._id }, { __v: 0 }).lean()
+
                 return Product.find({ user: user._id }, { __v: 0 }).lean()
             })
             .then(products => {
@@ -238,27 +295,31 @@ const logic = {
 
     listStories(email, productId) {
         return Promise.resolve()
-            .then(() => {
-                this._validateEmail(email)
+        .then(() => {
+            this._validateEmail(email)
                 return User.findOne({ email })
             })
             .then(user => {
-                if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                return Product.find({ user: user._id }, { __v: 0 }).lean()
-            })
-            .then(products => {
-                if (!products) throw new LogicError(`product with ${productId} product does not exist`)
-                return Story.find({ product: product._id }, { __v: 0 }).lean()
-            })
 
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                return Product.findById( productId )
+            })
+            .then(product => {
+
+                if (!product) throw new LogicError(`product with ${productId} product does not exist`)
+
+                const stories = product.story
+
+                return Promise.all(stories.map(story => Story.findById(story)))
+            })
             .then(stories => {
+
                 if (stories) {
                     stories.forEach(story => {
                         story.id = story._id.toString()
 
                         delete story._id
-                        delete product._id
-                        delete story.user
+                        delete story.__v
                     })
                 }
                 return stories || []
@@ -270,7 +331,6 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
-
 
                 return User.findOne({ email })
             })
@@ -313,56 +373,6 @@ const logic = {
             .then(() => true)
     },
 
-    // addLiketToStory(email, productId, storyId) {
-    //     return Promise.resolve()
-    //         .then(() => {
-    //             this._validateEmail(email)
-
-    //             let _user, _story
-
-    //             return User.findOne({ email })
-    //         })
-    //         .then(user => {
-    //             if (!user) throw new LogicError(`user with ${email} email does not exist`)    
-    //             _user = user
-
-    //             return Product.findById(productId)
-    //         })
-    //         .then(product => {
-    //             if (!product) throw new LogicError(`product with ${productId} product does not exist`)
-    //             return Story.findById(storyId)
-    //         })
-    //         .then(story => {
-    //             if (!story) throw new LogicError(`story with ${storyId} story does not exist`)
-
-    //             _story = story
-
-    //             let isLiked = false
-    //             _user.liked.forEach(story => {
-    //                 if(story._id.toString() === storyId.toString()) {
-    //                     isLiked = true
-    //                 }
-    //             })
-
-    //             if(isLiked) {
-    //                 story.like --
-
-    //                 const pos = _user.liked.indexOf(storyId)
-    //                 _user.liked.splice(pos, 1)
-    //             }
-    //             else {
-    //                 story.like ++
-    //                 _user.liked.push(storyId)
-    //             }
-
-    //             return _user.save()
-    //         })
-    //         .then(() => {
-    //             return _story.save()
-    //         })
-    //         .then(() => true)
-    // },
-
     searchWord(email, word) {
         return Promise.resolve()
             .then(() => {
@@ -383,9 +393,10 @@ const logic = {
                     return { title, date, photo, id, user: user.toString() }
                 })
             })
-
     }
 }
+
+
 
 
 class LogicError extends Error {

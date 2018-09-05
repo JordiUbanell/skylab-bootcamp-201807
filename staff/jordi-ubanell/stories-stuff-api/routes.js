@@ -10,6 +10,25 @@ const validateJwt = require('./helpers/validate-jwt')
 const router = express.Router()
 const jsonBodyParser = bodyParser.json()
 
+// router.post("/user/:email/products/create", [validateJwt, fileUpload()], (req: Request | any, res: Response) => {
+//     const { params: { email }, files } = req;
+//    ​
+//     if (files && files.image) {
+//      const { image } = files;
+//    ​
+//      logic.post.uploadTest(email, image.name, image.data)
+//       .then(() => res.status(201).json({ message: "post saved" }))
+//       .catch((err: any) => {
+//        const { message } = err;
+//    ​
+//        res.status(err instanceof LogicError ? 400 : 500).json({ message });
+//       });
+//     } else {
+//      res.status(418).json({ message: "no image received" });
+//     }
+//    });
+
+// register
 router.post('/register', jsonBodyParser, (req, res) => {
     const { body: { email, password } } = req
 
@@ -22,6 +41,20 @@ router.post('/register', jsonBodyParser, (req, res) => {
         })
 })
 
+// unregister
+router.delete('/unregister', jsonBodyParser, (req, res) => {
+    const { body: { email, password } } = req
+
+    logic.register(email, password)
+        .then(() => res.status(201).json({ message: 'user unregistered' }))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// authenticate
 router.post('/authenticate', jsonBodyParser, (req, res) => {
     const { body: { email, password } } = req
 
@@ -40,6 +73,7 @@ router.post('/authenticate', jsonBodyParser, (req, res) => {
         })
 })
 
+// update password
 router.patch('/user/:email/updatepassword', [validateJwt, jsonBodyParser], (req, res) => {
     const { params: { email }, body: { password, newPassword } } = req
 
@@ -52,12 +86,11 @@ router.patch('/user/:email/updatepassword', [validateJwt, jsonBodyParser], (req,
         })
 })
 
+// list products
 router.get('/user/:email/listproducts', validateJwt, (req, res) => {
     const { params: { email } } = req
 
     logic.listProducts(email)
-        // .then(files => res.json(files))
-        // .then(res.json) // WARN! .then() applies promise context to passing handler!
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err
@@ -66,10 +99,11 @@ router.get('/user/:email/listproducts', validateJwt, (req, res) => {
         })
 })
 
-router.post('/user/:email/liststories', validateJwt, (req, res) => {
+// list all products
+router.get('/user/:email/listallproducts', validateJwt, (req, res) => {
     const { params: { email } } = req
 
-    logic.listStories(email)
+    logic.listAllProducts(email)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err
@@ -78,25 +112,95 @@ router.post('/user/:email/liststories', validateJwt, (req, res) => {
         })
 })
 
-// router.get('/user/:username/files/:file', validateJwt, (req, res) => {
-//     const { params: { username, file } } = req
+// list stories of one product
+router.post('/user/:email/products/productId/liststories', validateJwt, (req, res) => {
+    const { params: { email, productId } } = req
 
-//     logic.getFilePath(username, file)
-//         .then(res.download.bind(res))
-//         .catch(({ message }) => res.status(500).json({ message }))
-// })
+    logic.listStories(email,productId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
 
-// router.delete('/user/:username/files/:file', validateJwt, (req, res) => {
-//     const { params: { username, file } } = req
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
 
-//     logic.removeFile(username, file)
-//         .then(() => res.json({ message: 'file deleted' }))
-//         .catch(err => {
-//             const { message } = err
+// add product
+router.post('/user/:email/products',  [validateJwt,jsonBodyParser], (req, res) => {
+    const { params: { email}, body:{ title, photo, link, date } } = req
 
-//             res.status(err instanceof LogicError ? 400 : 500).json({ message })
-//         })
+    return logic.addProduct(email, title, photo, link, date)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
 
-// })
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// delete product
+router.delete('/user/:email/products/:productId', validateJwt, (req, res) => {
+    const { params: { email, productId } } = req
+
+    logic.removeProduct(email,productId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// add story
+router.post('/user/:email/product/:productId/stories', [validateJwt,jsonBodyParser], (req, res) => {
+    const { body: {text, like, date}, params: { email, productId} } = req
+
+    logic.addStory(email,text, like, date, productId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// delete story
+router.delete('/user/:email/stories/storyId', validateJwt, (req, res) => {
+    const { params: { email, storyId } } = req
+
+    logic.removeStory(email, storyId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// add like
+router.post('/user/:email/productid/storyid/like', validateJwt, (req, res) => {
+    const { params: { email, productId, storyId } } = req
+
+    logic.addProduct(email, productId, storyId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// search by word
+router.get('/user/:email/search/:query', validateJwt, (req, res) => {
+    const { params: { email, query } } = req
+
+    logic.searchWord(email, query)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
 
 module.exports = router

@@ -517,8 +517,16 @@ describe('logic', () => {
 
     }),
 
-        true && describe('list products', () => {
+        true && describe('list the products of everyone', () => {
             let products = [
+                { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            ]
+
+            let products2 = [
                 { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
                 { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
                 { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
@@ -530,12 +538,23 @@ describe('logic', () => {
                 User.create({ email, password })
                     .then(user => {
                         const userId = user.id
-
                         products.forEach(product => product.user = userId)
 
                         return Product.insertMany(products)
                     })
                     .then(_products => products = _products.map(product => product._doc))
+                    .then(() => {
+
+                        return User.create({ email: 'prueba@gmail.com', password: 'password' })
+                            .then(user => {
+                                const userId = user.id
+                                products2.forEach(product => product.user = userId)
+
+                                return Product.insertMany(products2)
+                            })
+                            .then(_products => products2 = _products.map(product => product._doc))
+
+                    })
             )
 
             after(() => Promise.all([
@@ -544,24 +563,78 @@ describe('logic', () => {
                 User.deleteMany()
             ]))
 
-            it('should list all user products', () => {
-                return logic.listProducts(email)
+            it('should correctly list the products of everyone', () => {
+                return logic.listAllProducts(email)
                     .then(_products => {
-
-                        expect(_products.length).to.equal(products.length)
+                        expect(_products.length).to.equal(products.length + products2.length)
 
                         const normalizedProducts = products.map(product => {
                             product.id = product._id.toString()
 
                             delete product._id
-                            delete product.user
                             delete product.__v
                             return product
                         })
-                        expect(_products).to.deep.equal(normalizedProducts)
+                        const normalizedProducts2 = products2.map(product => {
+                            product.id = product._id.toString()
+
+                            delete product._id
+                            delete product.__v
+                            return product
+                        })
+                        const resultingProducts = [...normalizedProducts, ...normalizedProducts2]
+                        expect(_products).to.deep.equal(resultingProducts)
+                        expect(_products.length).to.be.equal(10)
                     })
             })
         })
+
+
+    true && describe('list all products of one user', () => {
+        let products = [
+            { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+        ]
+
+        beforeEach(() =>
+            User.create({ email, password })
+                .then(user => {
+                    const userId = user.id
+
+                    products.forEach(product => product.user = userId)
+
+                    return Product.insertMany(products)
+                })
+                .then(_products => products = _products.map(product => product._doc))
+        )
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+
+        it('should list all user products of one user', () => {
+            return logic.listProducts(email)
+                .then(_products => {
+
+                    expect(_products.length).to.equal(products.length)
+
+                    const normalizedProducts = products.map(product => {
+                        product.id = product._id.toString()
+
+                        delete product._id
+                        delete product.user
+                        delete product.__v
+                        return product
+                    })
+                    expect(_products).to.deep.equal(normalizedProducts)
+                })
+        })
+    })
 
     true && describe('add story', () => {
         const date = new Date(), text = 'explaining something about lambretta', like = 12
@@ -685,7 +758,7 @@ describe('logic', () => {
     // })
 
 
-    !true && describe('list stories', () => {
+    true && describe('list stories', () => {
         let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
 
         let stories = [
@@ -702,26 +775,43 @@ describe('logic', () => {
 
                     return Product.create({ ...product, user: ObjectId(userId) })
                 })
-                
+
                 .then(product => {
                     productId = product._id
 
                     stories.forEach(story => {
-                        story.user = userId
-                        story.product = productId
+                        story.user = ObjectId(userId)
+                        story.product = ObjectId(productId)
                     })
 
                     return Story.insertMany(stories)
                 })
+                .then(stories => {
+                    return Product.findById(productId)
+                        .then(product => {
+                            product.story = stories.map(story => story._doc._id.toString())
+                            return product.save()
+                        })
+                })
+                .then(() => {
+                    return User.findById(userId)
+                        .then(user => {
+                            user.products.push(productId)
+                            return user.save()
+                        })
+                })
         )
 
         it('should list all stories of one product', () => {
-            debugger
             return logic.listStories(email, productId)
-                .then(stories => {
-                    debugger
+                .then(_stories => {
+
+                    expect(_stories.length).to.equal(stories.length)
+                    expect(_stories.length).to.equal(stories.length)
                 })
         })
+
+
 
         after(() => Promise.all([
             Product.deleteMany(),
@@ -762,14 +852,27 @@ describe('logic', () => {
                 })
         })
 
-        it('should toggle correctly', () => {
+        it('should like toggle correctly', () => {
             return logic.addLikeToStory(email, productId, storyId)
                 .then(res => {
                     expect(res).to.be.true
                     return User.findOne({ email })
                 })
+
                 .then(user => {
                     expect(user.liked.length).to.equal(1)
+                    return logic.addLikeToStory(email, productId, storyId)
+                })
+        })
+
+        it('should like toggle double and back to the no-liked position correctly', () => {
+            return logic.addLikeToStory(email, productId, storyId)
+                .then(res => {
+                    expect(res).to.be.true
+                    return User.findOne({ email })
+                })
+
+                .then(user => {
                     return logic.addLikeToStory(email, productId, storyId)
                 })
 
@@ -777,8 +880,6 @@ describe('logic', () => {
                     expect(res).to.be.true
                     return User.findOne({ email })
                 })
-
-                // TODO: que el usuario tiene los likes que tocan
 
                 .then((user) => {
                     expect(user.liked.length).to.equal(0)
