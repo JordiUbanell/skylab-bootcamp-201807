@@ -37,13 +37,6 @@ describe('logic', () => {
         })
     })
 
-    // true && describe('validate mail to id', () => {
-    //     it('should succeed on correct value', () => {
-    //         expect(() => logic._emailToId('id', id).to.equal(id))
-    //     })
-
-    // })
-
     true && describe('register user', () => {
         beforeEach(() =>
             Promise.all([
@@ -318,7 +311,7 @@ describe('logic', () => {
     })
 
     true && describe('add product', () => {
-        const date = new Date(), title = 'my post about Lambretta', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803"
+        const date = Date.now(), title = 'my post about Lambretta', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803"
 
         beforeEach(() => User.create({ email, password }))
 
@@ -346,7 +339,6 @@ describe('logic', () => {
                     expect(product.photo).to.equal(photo)
                     expect(product.link).to.equal(link)
                     expect(product.date).to.deep.equal(date)
-
                 })
         )
 
@@ -376,12 +368,6 @@ describe('logic', () => {
 
         it('should fail on trying to add product with an empty date', () =>
             logic.addProduct(email, title, photo, link, '')
-                .catch(err => err)
-                .then(({ message }) => expect(message).to.equal('invalid date'))
-        )
-
-        it('should fail on trying to add product with a numeric date', () =>
-            logic.addProduct(email, title, photo, link, 123)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal('invalid date'))
         )
@@ -451,15 +437,14 @@ describe('logic', () => {
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid link`))
         )
-
     })
 
     true && describe('remove product', () => {
         let products = [
-            { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date(), title: 'text 2', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date(), title: 'text 3', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date(), title: 'text 4', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'text 2', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'text 3', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'text 4', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
         ]
 
         let productId
@@ -519,19 +504,19 @@ describe('logic', () => {
 
         true && describe('list the products of everyone', () => {
             let products = [
-                { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+                { date: Date.now(), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
             ]
 
             let products2 = [
-                { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-                { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+                { date: Date.now(), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+                { date: Date.now(), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
             ]
 
             beforeEach(() =>
@@ -553,7 +538,6 @@ describe('logic', () => {
                                 return Product.insertMany(products2)
                             })
                             .then(_products => products2 = _products.map(product => product._doc))
-
                     })
             )
 
@@ -589,14 +573,13 @@ describe('logic', () => {
             })
         })
 
-
     true && describe('list all products of one user', () => {
         let products = [
-            { date: new Date('2018-08-20T12:10:15.474Z'), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-23T13:00:00.000Z'), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:15:00.000Z'), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:19:00.000Z'), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
-            { date: new Date('2018-08-24T13:21:00.000Z'), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+            { date: Date.now(), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
         ]
 
         beforeEach(() =>
@@ -637,7 +620,7 @@ describe('logic', () => {
     })
 
     true && describe('add story', () => {
-        const date = new Date(), text = 'explaining something about lambretta', like = 12
+        const date = Date.now(), text = 'explaining something about lambretta', like = 12
         const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
         let productId
 
@@ -705,12 +688,6 @@ describe('logic', () => {
                 .then(({ message }) => expect(message).to.equal('invalid date'))
         )
 
-        it('should fail on trying to add story with a numeric date', () =>
-            logic.addStory(email, text, like, 123, productId)
-                .catch(err => err)
-                .then(({ message }) => expect(message).to.equal('invalid date'))
-        )
-
         it('should fail on trying to add story with an undefined text', () =>
             logic.addStory(email, undefined, like, date, productId)
                 .catch(err => err)
@@ -742,7 +719,7 @@ describe('logic', () => {
         )
     })
 
-    // const date = new Date(), text = 'explaining something about lambretta', like = 12
+    // const date = Date.now(), text = 'explaining something about lambretta', like = 12
     // const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
     // let productId
 
@@ -757,13 +734,12 @@ describe('logic', () => {
     //         })
     // })
 
-
     true && describe('list stories', () => {
-        let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+        let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
 
         let stories = [
-            { text: 'Story 1', like: 1, date: new Date() },
-            { text: 'Story 2', like: 2, date: new Date() }
+            { text: 'Story 1', like: 1, date: Date.now() },
+            { text: 'Story 2', like: 2, date: Date.now() }
         ]
 
         let productId, userId
@@ -811,8 +787,6 @@ describe('logic', () => {
                 })
         })
 
-
-
         after(() => Promise.all([
             Product.deleteMany(),
             Story.deleteMany(),
@@ -821,11 +795,11 @@ describe('logic', () => {
     })
 
     !!true && describe('add likes to stories', () => {
-        let product = { date: new Date(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+        let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
 
         let stories = [
-            { text: 'Story 1', like: 0, date: new Date() },
-            { text: 'Story 2', like: 0, date: new Date() }
+            { text: 'Story 1', like: 0, date: Date.now() },
+            { text: 'Story 2', like: 0, date: Date.now() }
         ]
 
         let productId, userId, storyId
@@ -888,7 +862,7 @@ describe('logic', () => {
     })
 
     true && describe('search by word', () => {
-        const date = new Date(), title = 'my post about my first elephant', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803", word = "elephant"
+        const date = Date.now(), title = 'my post about my first elephant', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803", word = "elephant"
 
         beforeEach(() => User.create({ email, password }))
 
@@ -904,7 +878,7 @@ describe('logic', () => {
         )
 
         it('should succeed on search a product containing a word', () => {
-            return logic.searchWord(email, word)
+            return logic.searchWord(word)
                 .then((res) => {
                     expect(res).to.exist
                     expect(res.length).to.equal(1)
@@ -912,7 +886,7 @@ describe('logic', () => {
         })
 
         it('should fail on search a product containing an non existing word', () => {
-            return logic.searchWord(email, 'snake')
+            return logic.searchWord('snake')
                 .catch(err => err)
                 .then(err => {
                     expect(err).to.exist
@@ -921,7 +895,7 @@ describe('logic', () => {
         })
 
         it('should fail on search a product containing a void space', () => {
-            return logic.searchWord(email, '')
+            return logic.searchWord('')
                 .catch(err => err)
                 .then(err => {
                     expect(err).to.exist
@@ -935,26 +909,6 @@ describe('logic', () => {
             User.deleteMany()
         ]))
     })
-
-
-
-    // it('should fail on search a product containing a word', () =>
-    //     logic.searchWord(email, 'snake')
-    //         .then((res) => {
-    //             expect(res).to.equal(0)
-    //     .catch (err => err)
-    //         .then(({ message }) => expect(message).to.equal(`search snake: no match found`))
-    // )
-
-    // it('should fail on trying to add product with an undefined mail', () => {
-    //     logic.addProduct(undefined, title, photo, link, date)
-    //         .catch(err => err)
-    //         .then(({ message }) => expect(message).to.equal(`invalid email`))
-    // })
-
-
-
-
 
     after(() =>
         Promise.all([

@@ -51,7 +51,7 @@ const logic = {
     },
 
     _validateDateField(name, value) {
-        if (typeof value === 'number' || isNaN(Date.parse(value))) throw new LogicError(`invalid ${name}`)
+        if (typeof value !== 'number' || value !== value) throw new LogicError(`invalid ${name}`)
     },
 
 
@@ -192,20 +192,12 @@ const logic = {
             })
     },
 
-    listAllProducts(email) {
+    listAllProducts() {
         return Promise.resolve()
             .then(() => {
-                this._validateEmail(email)
-                return User.findOne({ email })
-            })
-            .then(user => {
-                if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                // return Product.find({ user: user._id }, { __v: 0 }).lean()
-
                 return Product.find({ }, { __v: 0 }).lean()
             })
             .then(products => {
-                debugger
                 if (products) {
                     products.forEach(product => {
                         product.id = product._id.toString()
@@ -293,6 +285,33 @@ const logic = {
             })
     },
 
+    listAllStories(productId) {
+        return Promise.resolve()
+        .then(() => {
+            return Product.findById( productId )
+            })
+            .then(product => {
+
+                if (!product) throw new LogicError(`product with ${productId} product does not exist`)
+
+                const stories = product.story
+
+                return Promise.all(stories.map(story => Story.findById(story)))
+            })
+            .then(stories => {
+
+                if (stories) {
+                    stories.forEach(story => {
+                        story.id = story._id.toString()
+
+                        delete story._id
+                        delete story.__v
+                    })
+                }
+                return stories || []
+            })
+    },
+
     listStories(email, productId) {
         return Promise.resolve()
         .then(() => {
@@ -373,16 +392,10 @@ const logic = {
             .then(() => true)
     },
 
-    searchWord(email, word) {
+    searchWord(word) {
         return Promise.resolve()
             .then(() => {
-                this._validateEmail(email)
                 this._validateStringField('word', word)
-                return User.findOne({ email })
-            })
-
-            .then(user => {
-                if (!user) throw new LogicError(`user with ${email} email does not exist`)
                 return Product.find(({ "title": { $regex: `.*${word}.*` } }))
             })
             .then(products => {

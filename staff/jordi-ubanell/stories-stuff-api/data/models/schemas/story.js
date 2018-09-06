@@ -14,7 +14,7 @@ module.exports = new Schema({
     like: Number,
 
     date: {
-        type: Date,
+        type: Number,
         required: true
     },
 

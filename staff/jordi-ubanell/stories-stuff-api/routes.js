@@ -99,7 +99,7 @@ router.get('/user/:email/listproducts', validateJwt, (req, res) => {
         })
 })
 
-// list all products
+// list all products from everybody
 router.get('/user/:email/listallproducts', validateJwt, (req, res) => {
     const { params: { email } } = req
 
@@ -112,7 +112,20 @@ router.get('/user/:email/listallproducts', validateJwt, (req, res) => {
         })
 })
 
-// list stories of one product
+// list all stories of one product from everybody
+router.get('/products/:productId', validateJwt, (req, res) => {
+    const { params: { productId } } = req
+
+    logic.listAllStories(productId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
+// list stories of one user
 router.post('/user/:email/products/productId/liststories', validateJwt, (req, res) => {
     const { params: { email, productId } } = req
 
@@ -165,7 +178,7 @@ router.post('/user/:email/product/:productId/stories', [validateJwt,jsonBodyPars
 })
 
 // delete story
-router.delete('/user/:email/stories/storyId', validateJwt, (req, res) => {
+router.delete('/user/:email/stories/:storyId', validateJwt, (req, res) => {
     const { params: { email, storyId } } = req
 
     logic.removeStory(email, storyId)
@@ -178,10 +191,10 @@ router.delete('/user/:email/stories/storyId', validateJwt, (req, res) => {
 })
 
 // add like
-router.post('/user/:email/productid/storyid/like', validateJwt, (req, res) => {
+router.post('/user/:email/productId/storyId', [validateJwt,jsonBodyParser], (req, res) => {
     const { params: { email, productId, storyId } } = req
 
-    logic.addProduct(email, productId, storyId)
+    logic.addLikeToStory(email, productId, storyId)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err
@@ -191,10 +204,10 @@ router.post('/user/:email/productid/storyid/like', validateJwt, (req, res) => {
 })
 
 // search by word
-router.get('/user/:email/search/:query', validateJwt, (req, res) => {
-    const { params: { email, query } } = req
+router.get('/user/search/:query', (req, res) => {
+    const { params: { query } } = req
 
-    logic.searchWord(email, query)
+    logic.searchWord(query)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err

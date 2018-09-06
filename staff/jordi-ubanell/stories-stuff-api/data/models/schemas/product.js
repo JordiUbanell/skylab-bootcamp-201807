@@ -19,7 +19,7 @@ module.exports = new Schema({
     link: String,
 
     date: {
-        type: Date,
+        type: Number,
         required: true
     },
 
