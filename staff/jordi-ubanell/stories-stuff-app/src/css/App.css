@@ -39,7 +39,7 @@ h1 {
 
 h2 {
   font-size: 2.87em;
-  line-height: 1em;
+  line-height: 1.1em;
 }
 
 h3 {
@@ -62,6 +62,22 @@ h5 {
   text-align: center;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.span__instructions {
+  font-family: "Work Sans script=all rev=1", sans-serif;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.span__counters {
+  font-weight: 500;
+  margin: 0.4em;
+}
+
 main {
   width: 100%;
   display: block;
@@ -78,7 +94,6 @@ main {
   display: block;
   margin: auto;
   border: 0px solid red;
-  padding: 2em 0em 2em 0em;
 }
 
 header {
@@ -153,7 +168,7 @@ nav {
   background-color: #F6F6F6;
   border-style: solid;
   border-width: 0px;
-  margin-top: 12em;
+  margin-top: 11.5em;
 }
 
 .section__search {
@@ -182,7 +197,6 @@ nav {
 }
 
 .section__instructions__form-half {
-  min-with: 50em;
   width: 50%;
   padding-top: 3em;
   padding-bottom: 3em;
@@ -198,14 +212,11 @@ nav {
 }
 
 .section__instructions-block {
-  padding-top: 1em;
+  margin-top: 2.5em;
+  margin-bottom: 1.5em;
   width: 25%;
   height: 15em;
   border: 0px solid red;
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-content: space-between;
 }
 
 .section__instructions__text {
@@ -217,65 +228,90 @@ nav {
 
 .section__instructions__icon {
   width: 100%;
+  display: block;
   text-align: center;
   border: 0px solid red;
   padding-right: 5em;
   margin: 0;
 }
 
-.section__objects {
-  width: 100%;
+.container__list-products {
+  max-width: 1090px;
   display: block;
+  margin: auto;
+  border: 0px solid red;
+  margin-top: 6em;
 }
 
-.section__object__article-block {
+.container__list__one-product {
+  display: flex;
   width: 100%;
-  display: block;
+  padding-bottom: 6em;
 }
 
-.section__object__article__text-block {
+.figure__warp {
   width: 50%;
+  min-height: 3em;
   display: block;
+  border: 0px solid red;
+  padding: 0;
+  margin: 0;
 }
 
-.section__object__article__title-block {
+.figure__warp__image {
+  display: block;
   width: 100%;
-  display: block;
-  text-align: center;
-}
-
-.section__object__article__author-block {
-  width: 100%;
-  display: block;
-  text-align: center;
-}
-
-figure {
-  width: 50%;
-  display: block;
 }
 
 .figure__image {
-  width: 100%;
+  max-width: 100%;
+  height: auto;
   display: block;
-  background-color: #F6F6F6;
 }
 
 .figure__figcaption {
+  width: 60%;
+  margin: auto;
+  text-align: center;
+  display: block;
+  padding: 0.2em;
+  background-color: #F6F6F6;
+  border: 0px solid red;
+  font-family: "Work Sans script=all rev=1", sans-serif;
+  font-weight: 500;
+  font-size: 1.1em;
+}
+
+.object__article__warp {
+  width: 50%;
+  display: block;
+  border: 0px solid red;
+}
+
+.object__article__text-block {
+  width: 50%;
+  display: block;
+  border: 0px solid red;
+}
+
+.object__article__title-block {
   width: 100%;
   display: block;
-  background-color: #525252;
+  text-align: center;
+  border: 0px solid red;
+  padding: 0.4em 3em 0 3em;
+}
+
+.object__article__author-block {
+  width: 100%;
+  display: block;
+  text-align: center;
+  border: 0px solid red;
 }
 
 .text__instructions {
   font-family: "Work Sans", sans-serif;
   font-weight: 500;
-  font-size: 1.1em;
-}
-
-.span__instructions {
-  font-family: "Work Sans script=all rev=1", sans-serif;
-  font-weight: 700;
   font-size: 1.1em;
 }
 
@@ -348,6 +384,7 @@ input {
   border-radius: 0;
   background-color: #525252;
   color: white;
+  placeholder: white;
   border: 0px solid white;
 }
 
@@ -371,6 +408,11 @@ input {
     font-size: 12px;
   }
 }
+.section__instructions-block--768 {
+  padding-top: 1em;
+  width: 50%;
+}
+
 @media only screen and (max-width: 480px) {
   body {
     font-size: 10px;

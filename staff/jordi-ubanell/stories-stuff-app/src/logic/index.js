@@ -1,35 +1,75 @@
 const logic = {
+     
+    /**
+     * TODO!!!!!
+     * 
+     * @param {*} userEmail 
+     */
+    _userEmail(userEmail) {
+        if(userEmail !== undefined) {
+            this.userEmail = userEmail
+            return
+        }
+
+        return this.userEmail
+    },
 
     /**
-     * SESSION STORAGE FOR THE USER ACCOUNT
+     * Set / Get userToken
      * 
-     * @property {set} param sets the param on sessionStorage
-     * @property {get} param gets the param from sessionStorage
+     * @example - logic._userToken() // Returns the token
+     * @example - logic._userToken(token) // Saves the token
+     * 
+     * @param {String} userToken
      */
+    _userToken(userToken) {
+        if(userToken !== undefined) {
+            this.userToken = userToken
+            return
+        }
 
-    set _userEmail(userEmail) {
-        sessionStorage.setItem('userEmail', userEmail)
+        return this.userToken
     },
 
-    get userEmail() {
-        return sessionStorage.getItem('userEmail')
+    /**
+     * TODO!!!!!
+     * 
+     * @param {*} userLikes 
+     */
+    _userLikes(userLikes) {
+        if(userLikes !== undefined) {
+            this.userLikes = userLikes
+            return
+        }
+
+        return this.userLikes
     },
 
-    set _userToken(userToken) {
-        sessionStorage.setItem('userToken', userToken)
-    },
+    // set _userEmail(userEmail) {
+    //     this.userEmail = userEmail
+    //     // sessionStorage.setItem('userEmail', userEmail)
+    // },
 
-    get _userToken() {
-        return sessionStorage.getItem('userToken')
-    },
+    // get userEmail() {
+    //     return this.userEmail
+    //     // return sessionStorage.getItem('userEmail')
+    // },
 
-    set _userLikes(userLikes) {
-        sessionStorage.setItem('userLikes', JSON.stringify(userLikes))
-    },
+    // set _userToken(userToken) {
+    //     sessionStorage.setItem('userToken', userToken)
+    // },
 
-    get _userLikes() {
-        return JSON.parse(sessionStorage.getItem('userLikes')) || []
-    },
+    // get _userToken() {
+    //     return sessionStorage.getItem('userToken')
+    // },
+
+    // set _userLikes(userLikes) {
+    //     sessionStorage.setItem('userLikes', JSON.stringify(userLikes))
+    // },
+
+    // get _userLikes() {
+    //     return JSON.parse(sessionStorage.getItem('userLikes')) || []
+    // },
 
     /**
      * User API to register, login, update, unregister or logout an user account
@@ -52,14 +92,15 @@ const logic = {
         if (noGet || token) {
             config.headers = {}
             if (noGet) config.headers['content-type'] = 'application/json'
-            if (token) config.headers.authorization = 'Bearer ' + this._userToken
+            if (token) config.headers.authorization = 'Bearer ' + this._userToken()
         }
         if (body) config.body = JSON.stringify(body)
 
-        return fetch('http://localhost:8080/api' + path, config)
+        return fetch('http://localhost:8080/api/' + path, config)
             .then(res => res.json())
             .then(res => {
                 if (res.status === 'KO') throw Error(res.error)
+
                 return res;
             })
     },
@@ -71,10 +112,10 @@ const logic = {
      * @returns {Promise} the id of the registered user
      */
     register(email, password) {
-        return 
-        
-        this._callApiStory('register', 'post', { email, password })
-            .then(res => res.data.id)
+        return this._callApiStory('register', 'post', { email, password })
+            .then(() => {
+                return true
+            })
     },
 
     /**
@@ -85,9 +126,10 @@ const logic = {
      */
     authenticate(email, password) {
         return this._callApiStory('/authenticate', 'post', { email, password })
-            .then(({ data: { token } }) => {
-                this._userEmail = email
-                this._userToken = token
+            .then(({ token }) => {
+                this._userEmail(email)
+                this._userToken(token)
+
                 return true
             })
     },
@@ -98,16 +140,15 @@ const logic = {
      * 
      * @returns {Promise} the newPassword replaced the old one
      */
-    updatePassword(email, password, newPassword) {
+    updatePassword(password, newPassword) {
         const data = {
-            email: this.userEmail,
+            email: this._userEmail(),
             password
         }
         if (newPassword) data.newPassword = newPassword
 
-        return this._callApiStory(`/user/${this._userEmail}`, 'put', data, true)
+        return this._callApiStory(`user/${this._userEmail()}/updatepassword`, 'PATCH', data, true)
             .then(() => {
-                if (newPassword) this._userPassword = newPassword
                 return true
             })
     },
@@ -120,7 +161,9 @@ const logic = {
     deleteUser(email, password) {
         return this._callApiStory(`/unregister`, { email: this.userEmail, password }, true)
             .then(() => {
-                sessionStorage.clear()
+                this.userEmail = null
+                this.userToken = null
+
                 return true
             })
     },
@@ -129,16 +172,15 @@ const logic = {
      * @returns {status} the email, token and id status to convert to null and to clear the sessionStorage
      */
     logout() {
-        this._userEmail = null
-        this._userToken = null
-        sessionStorage.clear()
+        this.userEmail = null
+        this.userToken = null
     },
 
     /**
      * @returns {status} the email, token status to know if the user is logged
      */
     get loggedIn() {
-        return this.userEmail && this._userToken
+        return this._userEmail() && this._userToken()
     },
 
     /**

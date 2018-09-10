@@ -49,11 +49,11 @@ class Menu extends Component {
                         </div>
                         <div className="nav__block__warp">
                             <div className="nav__block__warp__search">
-                                <img src={minicon_search} width="30rem" />
+                                <img src={minicon_search} width="30em" />
                             </div>
                             <div className="nav__block__warp__menu">
                                 <ul>
-                                    <li><h5><a href="/#" onClick={linkToObjects}>objects</a></h5></li>
+                                    <li><h5><a href="/#" onClick={linkToObjects}>stories</a></h5></li>
                                     <li><h5><a href="/#" onClick={linkToAbout}>about</a></h5></li>
                                     <li><h5><a href="/#" onClick={linkToLogin}>login</a></h5></li>
                                     <li><h5><a href="/#" onClick={linkToRegister}>register</a></h5></li>
