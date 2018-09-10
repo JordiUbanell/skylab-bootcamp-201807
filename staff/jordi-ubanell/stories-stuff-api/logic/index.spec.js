@@ -262,7 +262,7 @@ describe('logic', () => {
         ]))
 
         it('should unregister user correctly', () =>
-            logic.unregisterUser(email, password)
+            logic.deleteUser(email, password)
                 .then(res => {
                     expect(res).to.be.true
 
@@ -274,37 +274,37 @@ describe('logic', () => {
         )
 
         it('should fail on trying to unregister user with an undefined email', () =>
-            logic.unregisterUser(undefined, password)
+            logic.deleteUser(undefined, password)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid email`))
         )
 
         it('should fail on trying to unregister user with an empty email', () =>
-            logic.unregisterUser('', password)
+            logic.deleteUser('', password)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid email`))
         )
 
         it('should fail on trying to unregister user with a numeric email', () =>
-            logic.unregisterUser(123, password)
+            logic.deleteUser(123, password)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid email`))
         )
 
         it('should fail on trying to unregister user with an undefined password', () =>
-            logic.unregisterUser(email, undefined)
+            logic.deleteUser(email, undefined)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid password`))
         )
 
         it('should fail on trying to unregister user with an empty password', () =>
-            logic.unregisterUser(email, '')
+            logic.deleteUser(email, '')
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid password`))
         )
 
         it('should fail on trying to unregister user with a numeric password', () =>
-            logic.unregisterUser(email, 123)
+            logic.deleteUser(email, 123)
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid password`))
         )
@@ -437,6 +437,160 @@ describe('logic', () => {
                 .catch(err => err)
                 .then(({ message }) => expect(message).to.equal(`invalid link`))
         )
+    })
+
+    true && describe('update product', () => {
+        const date = Date.now(), title = 'my post about Lambretta', photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link = "https://es.wallapop.com/item/lambretta-229672803"
+        let productId
+
+        beforeEach(() => User.create({ email, password }))
+
+        after(() => Promise.all([
+            Story.deleteMany(),
+            Product.deleteMany(),
+            User.deleteMany()
+        ]))
+
+        it('should succeed on correct data', () =>
+            logic.addProduct(email, title, photo, link, date)
+                .then(res => {
+                    expect(res).to.be.true
+                    return User.findOne({ email })
+                })
+                .then(user => {
+                    return Product.findOne({ user: user.id })
+                })
+                .then(product => {
+                    productId = product.id
+
+                    expect(product.title).to.equal(title)
+                    expect(product.photo).to.equal(photo)
+                    expect(product.link).to.equal(link)
+                })
+        )
+
+        it('should succeed on correct update data in one product', () => {
+            const newTitle = 'whatserawey ', newPhoto = "https.google.com", newLink = "https.facebook.com"
+
+            logic.updateProduct(email, newTitle, newPhoto, newLink, productId)
+                .then(res => {
+                    expect(res).to.be.true
+                    return User.findOne({ email })
+                })
+                .then(user => {
+                    
+                    return Product.find({ user: productId.id })
+                })
+                .then(products => {
+                    expect(products.length).to.equal(1)
+
+                    const [product] = products
+                    expect(product.title).to.equal(newTitle)
+                    expect(product.photo).to.equal(newPhoto)
+                    expect(product.link).to.equal(newLink)
+
+                    expect(product.title).to.equal('whatserawey ')
+                    expect(product.photo).to.equal("https.google.com")
+                    expect(product.link).to.equal("https.facebook.com")
+
+                })
+        })
+
+        it('should fail on trying to add product with an undefined mail', () =>
+            logic.addProduct(undefined, title, photo, link, date)
+                .catch(err => err)
+                .then(({ message }) => expect(message).to.equal(`invalid email`))
+        )
+
+        // it('should fail on trying to add product with an empty email', () =>
+        //     logic.addProduct('', title, photo, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+        // )
+
+        // it('should fail on trying to add product with a numeric email', () =>
+        //     logic.addProduct(123, title, photo, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+        // )
+
+        // it('should fail on trying to add product with an undefined date', () =>
+        //     logic.addProduct(email, title, photo, link, undefined)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid date'))
+        // )
+
+        // it('should fail on trying to add product with an empty date', () =>
+        //     logic.addProduct(email, title, photo, link, '')
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid date'))
+        // )
+
+        // it('should fail on trying to add product with an undefined title', () =>
+        //     logic.addProduct(email, undefined, photo, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid title'))
+        // )
+
+        // it('should fail on trying to add product with an empty title', () =>
+        //     logic.addProduct(email, '', photo, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid title'))
+        // )
+
+        // it('should fail on trying to add product with a numeric title', () =>
+        //     logic.addProduct(email, 123, photo, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid title'))
+        // )
+
+        // it('should fail on trying to add product with an undefined photo', () =>
+        //     logic.addProduct(email, title, undefined, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid photo`))
+        // )
+
+        // it('should fail on trying to add product with an empty photo', () =>
+        //     logic.addProduct(email, title, '', link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid photo`))
+        // )
+
+        // it('should fail on trying to add product with a numeric photo', () =>
+        //     logic.addProduct(email, title, 123, link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid photo`))
+        // )
+
+        // it('should fail on trying to add product with an incorrect url photo', () =>
+        //     logic.addProduct(email, title, 'kjsdfsk sdksdfj . ks', link, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid photo`))
+        // )
+
+        // it('should fail on trying to add product with an undefined link', () =>
+        //     logic.addProduct(email, title, photo, undefined, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid link`))
+        // )
+
+        // it('should fail on trying to add product with an empty link', () =>
+        //     logic.addProduct(email, title, photo, '', date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid link`))
+        // )
+
+        // it('should fail on trying to add product with a numeric link', () =>
+        //     logic.addProduct(email, title, photo, 123, date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid link`))
+        // )
+
+        // it('should fail on trying to add product with an incorrect url link', () =>
+        //     logic.addProduct(email, title, photo, 'kjsdfsk sdksdfj . ks', date)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid link`))
+        // )
     })
 
     true && describe('remove product', () => {
@@ -719,6 +873,122 @@ describe('logic', () => {
         )
     })
 
+    true && describe('update story', () => {
+        let date = Date.now(), text = 'explaining something about lambretta', like = 12, newText = 'what do you know about Lambretta'
+        const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
+        let productId, storyId
+
+        beforeEach(() => {
+            return User.create({ email, password })
+                .then(user => {
+                    const userId = user._id
+                    return Product.create({ ...product, user: userId, date })
+                })
+                .then(product => {
+                    productId = product._id
+                })
+        })
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+
+        it('should succeed on correct data', () => {
+            return logic.addStory(email, text, like, date, productId)
+                .then(res => {
+                    expect(res).to.be.true
+
+                    return Story.find()
+                })
+                .then(stories => {
+                    expect(stories.length).to.equal(1)
+
+                    expect(stories[0].product.toString()).to.equal(productId.toString())
+                    expect(stories[0].text).to.equal(text)
+                    expect(stories[0].like).to.equal(like)
+                    expect(stories[0].date).to.deep.equal(date)
+                })
+        })
+
+        it('should succeed on changed correct data', () => {
+            debugger
+            return logic.updateStory(email, newText, productId, storyId)
+                .then(res => {
+                    expect(res).to.be.true
+
+                    return Story.find()
+                })
+                .then(stories => {
+                    debugger
+                    expect(stories.length).to.equal(1)
+                    expect(stories[0].text).to.equal('what do you know about Lambretta')
+                })
+        })
+
+        // it('should fail on trying to add story with an undefined mail', () =>
+        //     logic.addStory(undefined, text, like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+        // )
+
+        // it('should fail on trying to add story with an empty email', () =>
+        //     logic.addStory('', text, like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+        // )
+
+        // it('should fail on trying to add story with a numeric email', () =>
+        //     logic.addStory(123, text, like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid email`))
+        // )
+
+        // it('should fail on trying to add story with an undefined date', () =>
+        //     logic.addStory(email, text, like, undefined, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid date'))
+        // )
+
+        // it('should fail on trying to add story with an empty date', () =>
+        //     logic.addStory(email, text, like, '', productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid date'))
+        // )
+
+        // it('should fail on trying to add story with an undefined text', () =>
+        //     logic.addStory(email, undefined, like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid text'))
+        // )
+
+        // it('should fail on trying to add story with an empty text', () =>
+        //     logic.addStory(email, '', like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid text'))
+        // )
+
+        // it('should fail on trying to add story with a numeric text', () =>
+        //     logic.addStory(email, 123, like, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal('invalid text'))
+        // )
+
+        // it('should fail on trying to add story with an undefined like', () =>
+        //     logic.addStory(email, text, undefined, date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid like`))
+        // )
+
+        // it('should fail on trying to add story with an empty like', () =>
+        //     logic.addStory(email, text, '', date, productId)
+        //         .catch(err => err)
+        //         .then(({ message }) => expect(message).to.equal(`invalid like`))
+        // )
+    })
+
+
     // const date = Date.now(), text = 'explaining something about lambretta', like = 12
     // const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
     // let productId
@@ -783,7 +1053,7 @@ describe('logic', () => {
                 .then(_stories => {
 
                     expect(_stories.length).to.equal(stories.length)
-                    expect(_stories.length).to.equal(stories.length)
+                    expect(_stories.length).to.equal(2)
                 })
         })
 
@@ -794,7 +1064,63 @@ describe('logic', () => {
         ]))
     })
 
-    !!true && describe('add likes to stories', () => {
+    true && describe('list the stories of everybody of one product', () => {
+        let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+
+        let story1 = { text: 'Story 1', like: 1, date: Date.now() }
+        let story2 = { text: 'Story 1', like: 1, date: Date.now() }
+
+        let productId, userId1, userId2, storyId1, storyId2
+
+        beforeEach(() =>
+            User.create({ email, password })
+                .then(user => {
+                    userId1 = user.id
+
+                    return Product.create({...product, user: userId1})
+                })
+                .then(product => {
+                    productId = product.id
+
+                    return Story.create({ ...story1, product: productId, user: userId1  })
+                })
+                .then(story => {
+                    storyId1 = story.id
+
+                    return User.create({ email: 'prueba@gmail.com', password: 'password' })
+                })
+                .then(user => {
+                    userId2 = user.id
+
+                    return Story.create({...story2, product: productId, user: userId2})
+                })
+                .then(story => {
+                    storyId2 = story.id
+
+                    return Product.findById(productId)
+                })
+                .then(product => {
+                    product.story.push(storyId1, storyId2)
+
+                    return product.save()
+                })
+        )
+
+        it('should list the stories of everybody of one product', () => {
+            return logic.listAllStories(productId)
+                .then(_stories => {
+                    expect(_stories.length).to.equal(2)
+                })
+        })
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+    })
+
+    true && describe('add likes to stories', () => {
         let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
 
         let stories = [

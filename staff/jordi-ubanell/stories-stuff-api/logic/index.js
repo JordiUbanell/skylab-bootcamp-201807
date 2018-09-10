@@ -119,7 +119,7 @@ const logic = {
             .then(() => true)
     },
 
-    unregisterUser(email, password) {
+    deleteUser(email, password) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
@@ -159,6 +159,49 @@ const logic = {
             })
             .then(() => true)
     },
+
+    updateProduct(email, title, photo, link, productId) {
+        return Promise.resolve()
+            .then(() => {
+                this._validateEmail(email)
+                this._validateStringField ('title', title)
+                this._validateUrl ('photo', photo)
+                this._validateUrl ('link', link)
+
+                return User.findOne({ email })
+            })
+
+            .then(user => {
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                
+                return Product.findById( productId )
+            })
+
+            .then(product => {
+                if (!product) throw new LogicError(`product with ${productId} does not exist`)
+        
+                    product.title = title
+                    product.photo = photo
+                    product.link = link
+        
+                    return product.save()
+            })
+            .then(() => true)
+    },
+
+    // .then(user => {
+    //     if (!user) throw new LogicError(`user with ${email} email does not exist`)
+
+    //     if (user.password !== password) throw new LogicError(`wrong password`)
+
+    //     if (password === newPassword) throw new LogicError('new password must be different to old password')
+
+    //     user.password = newPassword
+
+    //     return user.save()
+    // })
+    // .then(() => true)
+
 
     removeProduct(email, productId) {
         return Promise.resolve()
@@ -285,6 +328,39 @@ const logic = {
             })
     },
 
+    updateStory(email, text, productId, storyId) {
+        return Promise.resolve()
+            .then(() => {
+                this._validateEmail(email)
+                this._validateStringField ('text', text)
+
+                return User.findOne({ email })
+            })
+
+            .then(user => {
+                if (!user) throw new LogicError(`user with ${email} email does not exist`)
+                
+                return Product.findById( productId )
+            })
+
+            .then(product => {
+                if (!product) throw new LogicError(`product with ${productId} does not exist`)
+        
+                return Story.findById( storyId )
+            })
+
+            .then(story => {
+                if (!story) throw new LogicError(`story with ${storyId} does not exist`)
+        
+                    story.text = text
+        
+                    return story.save()
+            })
+
+            .then(() => true)
+    },
+
+
     listAllStories(productId) {
         return Promise.resolve()
         .then(() => {
@@ -293,14 +369,16 @@ const logic = {
             .then(product => {
 
                 if (!product) throw new LogicError(`product with ${productId} product does not exist`)
-
+                debugger
                 const stories = product.story
 
                 return Promise.all(stories.map(story => Story.findById(story)))
             })
+
             .then(stories => {
 
                 if (stories) {
+                    debugger
                     stories.forEach(story => {
                         story.id = story._id.toString()
 

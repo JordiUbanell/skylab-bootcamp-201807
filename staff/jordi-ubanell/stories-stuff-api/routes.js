@@ -86,6 +86,19 @@ router.patch('/user/:email/updatepassword', [validateJwt, jsonBodyParser], (req,
         })
 })
 
+// // update profile
+// router.patch('/user/:email/updateprofile', [validateJwt, jsonBodyParser], (req, res) => {
+//     const { params: { email }, body: { password, newPassword } } = req
+
+//     logic.updatePassword(email, password, newPassword, name, surname, photo, products)
+//         .then(() => res.json({ message: 'user updated' }))
+//         .catch(err => {
+//             const { message } = err
+
+//             res.status(err instanceof LogicError ? 400 : 500).json({ message })
+//         })
+// })
+
 // list products
 router.get('/user/:email/listproducts', validateJwt, (req, res) => {
     const { params: { email } } = req
@@ -113,7 +126,7 @@ router.get('/user/:email/listallproducts', validateJwt, (req, res) => {
 })
 
 // list all stories of one product from everybody
-router.get('/products/:productId', validateJwt, (req, res) => {
+router.get('/products/:productId/listallstories', (req, res) => {
     const { params: { productId } } = req
 
     logic.listAllStories(productId)
@@ -126,10 +139,10 @@ router.get('/products/:productId', validateJwt, (req, res) => {
 })
 
 // list stories of one user
-router.post('/user/:email/products/productId/liststories', validateJwt, (req, res) => {
+router.get('/user/:email/products/:productId/liststories', validateJwt, (req, res) => {
     const { params: { email, productId } } = req
 
-    logic.listStories(email,productId)
+    logic.listStories(email, productId)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err
@@ -164,6 +177,19 @@ router.delete('/user/:email/products/:productId', validateJwt, (req, res) => {
         })
 })
 
+// update product
+router.patch('/user/:email/product/:productId/update', [validateJwt, jsonBodyParser], (req, res) => {
+    const { params: { email, productId }, body: { title, photo, link }} = req
+
+    logic.updateProduct(email, title, photo, link, productId)
+        .then(() => res.json({ message: 'product updated' }))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
 // add story
 router.post('/user/:email/product/:productId/stories', [validateJwt,jsonBodyParser], (req, res) => {
     const { body: {text, like, date}, params: { email, productId} } = req
@@ -190,8 +216,21 @@ router.delete('/user/:email/stories/:storyId', validateJwt, (req, res) => {
         })
 })
 
+// update story
+router.patch('/user/:email/product/:productId/story/:storyId/update', [validateJwt, jsonBodyParser], (req, res) => {
+    const { params: { email, productId, storyId }, body: { text }} = req
+
+    logic.updateStory(email, text, productId, storyId)
+        .then(() => res.json({ message: 'story updated' }))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
 // add like
-router.post('/user/:email/productId/storyId', [validateJwt,jsonBodyParser], (req, res) => {
+router.post('/user/:email/products/:productId/stories/:storyId/like', [validateJwt,jsonBodyParser], (req, res) => {
     const { params: { email, productId, storyId } } = req
 
     logic.addLikeToStory(email, productId, storyId)
