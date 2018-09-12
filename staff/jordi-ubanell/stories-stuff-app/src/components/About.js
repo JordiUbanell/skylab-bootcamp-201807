@@ -3,12 +3,14 @@ import React, { Component } from 'react'
 
 // import { logic } from '../logic'
 import '../css/App.css'
+import Menu from './Menu'
 
 class About extends Component {
 
     render() {
 
         return (<main>
+            {/* <Menu /> */}
             <div className="section__instructions">
                 <div className="section__instructions__form">
                     <div className="section__instructions__form-half">

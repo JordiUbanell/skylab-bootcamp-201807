@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
-// import { withRouter } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 
-// import { logic } from '../logic'
+import logic from '../logic'
 import '../css/App.css'
+import Menu from './Menu'
 
 class Login extends Component {
 
@@ -15,31 +16,37 @@ class Login extends Component {
 
     savePassword = (event) => this.setState({ password: event.target.value })
 
-    login = (event) => {
-        event.preventDefault()
-        const { email, password } = this.state
-        this.props.onLogin(email, password)
-    }
+    onSubmitLogin = e => {
+        e.preventDefault()
 
-    linkToRegister = (event) => {
-        event.preventDefault()
-        this.props.linkToRegister()
+        const { email, password } = this.state
+
+        logic.authenticate(email, password)
+            .then(() => {
+                this.props.history.push('/')
+            })
+            .catch(({ message }) => {
+                // TODO: mostrar un panel de error o un toast
+                alert(message)
+            })
     }
 
     render() {
-        const { login, saveUsername, savePassword, linkToRegister } = this
+        const { onSubmitLogin, saveEmail, savePassword } = this
 
         return (<main>
+            {/* <Menu /> */}
+
             <div className="section__instructions">
                 <div className="section__instructions__form">
                     <div className="section__instructions__form-half">
                         <nav>
                             <h1>Login</h1>
-                            <form onSubmit={login}>
-                                <input className="input--border" type="text" placeholder="email" onChange={saveUsername}></input>
+                            <form onSubmit={onSubmitLogin}>
+                                <input className="input--border" type="text" placeholder="email" onChange={saveEmail}></input>
                                 <input className="input--border" type="password" placeholder="password" onChange={savePassword}></input>
                                 <button type="submit">login</button>
-                                <h5>Go to <a href="/#" onClick={linkToRegister}>register</a></h5>
+                                <h5>Go to <Link to="/register">register</Link></h5>
                             </form>
 
                         </nav>
@@ -52,8 +59,4 @@ class Login extends Component {
 }
 
 
-
-
-
-
-export default Login
+export default withRouter(Login)

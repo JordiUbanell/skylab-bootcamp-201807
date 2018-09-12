@@ -12,27 +12,45 @@ body
 p 
   font-size: 1.2em
 
-a 
+a
   text-decoration: none
   display: inline
   text-align: left
   font-weight: 500
-  color: black
+  color: #525252
 
 a:hover 
   color: red
+
+.a--link 
+  font-family: "Work Sans", sans-serif
+  font-weight: 500
+  font-size: 1.1em
+  min-height: 1.7em
+  width: 11em
+  background-color: #525252
+  display: block
+  border-radius: 0.15em
+  border: 0.1em
+  padding: 0.1em 1em
+  margin:  0.1em 0 0.5em 0
+  color: white
+  cursor: pointer
+
+.a--link:hover  
+  background-color: black
 
 form 
     padding: 0
     margin: 0
 
 h1 
-  font-size: 2.87em
-  line-height: 1.1em
+  font-size: 2.7em
+  line-height: 1.05em
 
 h2 
-  font-size: 2.87em
-  line-height: 1.1em
+  font-size: 2.7em
+  line-height: 1.05em
 
 h3 
   font-size: 1.6em
@@ -50,6 +68,7 @@ h5
 .center__text
   text-align: center
 
+
 img
   max-width: 100%
   height: auto
@@ -61,7 +80,7 @@ img
 
 .span__counters
   font-weight: 500
-  margin:0.4em
+  margin:0.2em
 
 main 
   width: 100%
@@ -97,6 +116,8 @@ nav
   position: fixed
   left: 2em
   top: -1em
+  // font-size: 2.7em
+  // line-height: 1.05em
 
 .nav__block__warp
   border-style: solid
@@ -126,16 +147,16 @@ nav
   border-width: 0px
   width: 5em
   position: fixed
-  right: -0.2em
+  right: .5em
   top: 1.5em
 
 .nav__block__warp__profile__text
   -ms-transform: rotate(90deg)
   -webkit-transform: rotate(90deg)
   transform: rotate(-90deg)
-  padding-bottom: 0.1em
-  padding-right: .1em
-  text-align: right
+  padding-bottom: 0em
+  padding-right: 0em
+  text-align: center
 
 .section__instructions 
   width: 100%
@@ -143,7 +164,7 @@ nav
   background-color: #F6F6F6
   border-style: solid
   border-width: 0px
-  margin-top: 11.5em
+  margin-top: 9.5em
 
 .section__search 
   width: 100%
@@ -152,7 +173,8 @@ nav
   background-color: #525252
   border-style: solid
   border-width: 0px
-  margin-top: 9em
+  margin-top: 9.5em
+  padding-left: 4.7em
   color: white
 
 .section__search__warp
@@ -169,7 +191,7 @@ nav
 
 .section__instructions__form-half
   width: 50%
-  padding-top: 3em
+  padding-top: 2em
   padding-bottom: 3em
   border-style: solid
   border-width: 0px
@@ -201,6 +223,16 @@ nav
   padding-right: 5em
   margin: 0
 
+.section_instructions__icon__box
+  width: 3.3em
+  height: 3.3em
+  margin: auto
+
+.section_instructions__icon--minibox
+  width: 2em
+  height: 2em
+  margin: auto
+
 .container__list-products
   max-width: 1090px
   display: block
@@ -212,6 +244,54 @@ nav
   display: flex
   width: 100%
   padding-bottom: 6em
+
+.container__list-histories
+  max-width: 100%
+  display: flex
+  border: 0px solid red
+
+.container__list__story
+  display: flex
+  justify-content: flex-end
+  width: 100%
+  padding-bottom: 6em
+  border: 0px solid red
+    
+.container__list__story__block
+  width: 50%
+  display: block
+  border: 0px solid green  
+
+.container__list__story__block--auto
+  width: auto
+  display: block
+  border: 0px solid red  
+
+.container__list__story__block--content
+  width: 50%
+  display: block
+  border: 0px solid red
+  padding-right: 6em
+
+.container__list__story__block--content__text
+  width: 100%
+  display: block
+  border: 0px solid red
+
+.container__list__story__block--content__profile
+  width: 100%
+  display: flex
+  border: 0px solid red
+
+.container__list__story__block--content__profile__name-date
+  width: 100%
+  display: flex
+  padding-left: .7em
+
+.container__list__story__block--counter
+  width: 20%
+  display: block
+  border: 0px solid blue
 
 // .container__list-product-half
 //   width: 50%
@@ -237,17 +317,35 @@ nav
   height: auto
   display: block
 
-.figure__figcaption 
-  width: 60%
+.counter__warp
+  width: 9em
+  display: flex
+  flex-direction: column
+  text-align: center
+  padding-top: 1.5em
+  border: 0px solid red
+
+.counter_block 
+  width: 40%
   margin: auto
   text-align: center
   display: block
   padding: 0.2em
-  background-color: #F6F6F6
+  // background-color: #F6F6F6
   border: 0px solid red
   font-family: "Work Sans script=all rev=1", sans-serif
   font-weight: 500
   font-size: 1.1em
+  border: 1px solid #525252
+  border-radius: 2em
+
+.counter_block--post 
+  width: 6em
+  text-align: center
+  font-family: "Work Sans script=all rev=1", sans-serif
+  font-weight: 500
+  border: 1px solid #525252
+  border-radius: 2em
 
 .object__article__warp 
   width: 50%
@@ -296,23 +394,7 @@ li a
     text-decoration: none
 
 
-// .App 
-//   text-align: left
 
-// .App__header__nav__item 
-//   font-size: 2em
-//   font-weight: 700
-//   letter-spacing: 0.05em
-//   color: white
-//   display: inline-block
-//   margin: 0.3em
-//   float: left
-
-// .App__header__nav__ul 
-//   padding-right: 3em
-//   display: flex
-//   flex-direction: row
-//   justify-content: center
 
 button 
   font-family: "Work Sans", sans-serif
@@ -332,13 +414,17 @@ button
 button:hover 
   background-color: black
 
-.form-control:focus
-    // -webkit-box-shadow: none !important 
-    // box-shadow: none !important
-    // border-color: 0  !important
-    box-shadow: none !important
+input:focus, textarea:focus
+  outline: none !important
+  border:1px solid #525252
+  box-shadow: 0 0 5px #525252
 
-input 
+button:focus
+  outline: none !important
+  border:1px solid red
+  box-shadow: 0 0 5px red
+
+input, textarea
   font-family: "Work Sans", sans-serif
   font-weight: 500
   font-size: 1.1em
@@ -348,7 +434,7 @@ input
   border-radius: 0.15em
   min-height: 1.7em
   border: 1px solid #525252
-  padding: 0em 0.4em
+  padding: 0.2em 0.4em
   margin: 0em 0 0.5em 0
   color: #525252
 
@@ -368,35 +454,109 @@ input
   height: 5em
 
 .input--height--text
-  height: 10em
+  height: 19em
   width: 28em
 
+// .App 
+//   text-align: left
+
+// .App__header__nav__item 
+//   font-size: 2em
+//   font-weight: 700
+//   letter-spacing: 0.05em
+//   color: white
+//   display: inline-block
+//   margin: 0.3em
+//   float: left
+
+// .App__header__nav__ul 
+//   padding-right: 3em
+//   display: flex
+//   flex-direction: row
+//   justify-content: center
+
 @media only screen and (max-width: 1024px) 
+
   body 
     font-size: 14px
 
+  .section__instructions-block--flex 
+    padding-left: 3%
+    padding-right: 3%
+
+  .container__list__story__block--content
+    width: 60%
+    padding-right: 4em
+  
+
 @media only screen and (max-width: 768px) 
+
   body 
     font-size: 12px
 
-.section__instructions-block--768
-  padding-top:1em
-  width: 50%
+  .section__instructions-block
+    padding-top:1em
+    width: 5
 
-// .section__instructions__form--768
-//   justify-content: center
+  .section__instructions-block--flex 
+    padding-left: 5%
+    padding-right: 5%
 
-// .section__instructions__form-half--768
-//   width: 80%
+  // .section__instructions__form
+  // justify-content: center
+
+  .section__instructions__form-half
+    width: 80%
+
+  .section__instructions-block
+    padding-top:1em
+    padding-right: 0
+    magin: 0
+    width: 50%
+
+  .container__list__story__block--content
+    width: 90%
+    padding-right: 2em
 
 @media only screen and (max-width: 480px) 
+
   body 
     font-size: 10px
 
-// .section__instructions__form--480
-//   justify-content: center
+  .container__list__one-product
+    display: flex
+    flex-direction: column
 
-// .section__instructions__form-half--480
-//   width: 80%
-  
-/*# sourceMappingURL=.App.css.map */
+  .object__article__warp 
+    width: 90%
+    margin: auto
+
+  .figure__warp 
+    width: 90%
+    margin: auto
+
+  .section__instructions-block
+    padding-top:1em
+    padding-right: 0
+    magin: 0
+    width: 50%
+
+  .section__instructions__icon
+    width: 100%
+    padding-right: 2em
+    padding-left: 2em
+
+  .section__instructions__text
+    width: 100%
+    padding-right: 2em
+    padding-left: 2em
+
+  .section__instructions-block--flex 
+    padding-left: 5%
+    padding-right: 5%
+
+  .object__article__warp 
+    width: 100%
+
+  .object__article__text-block 
+    width: 100%

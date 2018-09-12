@@ -8,7 +8,7 @@ module.exports = new Schema({
         type: String,
         required: true, 
         minlength: 4,
-        maxlength: 90
+        maxlength: 100
     },
 
     photo: { 

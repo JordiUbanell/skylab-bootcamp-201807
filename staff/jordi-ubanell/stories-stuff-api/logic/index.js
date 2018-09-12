@@ -1,7 +1,11 @@
 const validateEmail = require('../utils/validate-email')
 // const emailToId = require('../utils/email-to-id')
 const validateUrl = require('../utils/validate-url')
-const { Product, Story, User } = require('../data/models')
+const {
+    Product,
+    Story,
+    User
+} = require('../data/models')
 const cloudinary = require('cloudinary')
 
 // config();
@@ -23,12 +27,12 @@ const cloudinary = require('cloudinary')
 //         .then(() => {
 //           if (!filename) { throw new LogicError("invalid filename"); }
 //           if (!buffer) { throw new LogicError("invalid buffer"); }
-  
+
 //           return User.findOne({ username });
 //         })
 //         .then((user: UserModelInterface) => {
 //           if (!user) { throw new LogicError(`user with username ${username} does not exists`); }
-  
+
 //           return new Promise((resolve, reject) => {
 //             cloudinary.v2.uploader.upload_stream((error: any, result: any) => {
 //               if (error) {
@@ -69,12 +73,17 @@ const logic = {
                 this._validateEmail(email)
                 this._validateStringField('password', password)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (user) throw new LogicError(`user with ${email} email already exist`)
 
-                return User.create({ email, password })
+                return User.create({
+                    email,
+                    password
+                })
             })
             .then(() => true)
     },
@@ -85,7 +94,9 @@ const logic = {
                 this._validateEmail(email)
                 this._validateStringField('password', password)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
@@ -103,7 +114,9 @@ const logic = {
                 this._validateStringField('password', password)
                 this._validateStringField('new password', newPassword)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
@@ -125,14 +138,18 @@ const logic = {
                 this._validateEmail(email)
                 this._validateStringField('password', password)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
                 if (user.password !== password) throw new LogicError(`wrong password`)
 
-                return User.deleteOne({ _id: user._id })
+                return User.deleteOne({
+                    _id: user._id
+                })
             })
             .then(() => true)
     },
@@ -146,45 +163,55 @@ const logic = {
                 this._validateUrl('link', link)
                 this._validateUrl('photo', photo)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
                 date = new Date(date)
 
-                const product = { date, title, photo, link, user: user.id }
+                const product = {
+                    date,
+                    title,
+                    photo,
+                    link,
+                    user: user.id
+                }
 
                 return Product.create(product)
             })
-            .then(() => true)
+            .then(product => product.id)
     },
 
     updateProduct(email, title, photo, link, productId) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
-                this._validateStringField ('title', title)
-                this._validateUrl ('photo', photo)
-                this._validateUrl ('link', link)
+                this._validateStringField('title', title)
+                this._validateUrl('photo', photo)
+                this._validateUrl('link', link)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
 
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                
-                return Product.findById( productId )
+
+                return Product.findById(productId)
             })
 
             .then(product => {
                 if (!product) throw new LogicError(`product with ${productId} does not exist`)
-        
-                    product.title = title
-                    product.photo = photo
-                    product.link = link
-        
-                    return product.save()
+
+                product.title = title
+                product.photo = photo
+                product.link = link
+
+                return product.save()
             })
             .then(() => true)
     },
@@ -207,14 +234,18 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
-                this._validateStringField("productId",productId)
+                this._validateStringField("productId", productId)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
-                return Product.findOne({ _id: productId })
+                return Product.findOne({
+                    _id: productId
+                })
                     .then(product => {
                         if (!product) throw new LogicError(`product with id ${productId} does not exist`)
 
@@ -227,7 +258,9 @@ const logic = {
                         return user.save()
                     })
                     .then(() => {
-                        return Product.deleteOne({ _id: productId })
+                        return Product.deleteOne({
+                            _id: productId
+                        })
                     })
             })
             .then(() => {
@@ -238,7 +271,9 @@ const logic = {
     listAllProducts() {
         return Promise.resolve()
             .then(() => {
-                return Product.find({ }, { __v: 0 }).lean()
+                return Product.find({}, {
+                    __v: 0
+                }).lean()
             })
             .then(products => {
                 if (products) {
@@ -256,13 +291,19 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
                 // return Product.find({ user: user._id }, { __v: 0 }).lean()
 
-                return Product.find({ user: user._id }, { __v: 0 }).lean()
+                return Product.find({
+                    user: user._id
+                }, {
+                        __v: 0
+                    }).lean()
             })
             .then(products => {
                 if (products) {
@@ -277,6 +318,16 @@ const logic = {
             })
     },
 
+    //TODO: Retrieve product by id !!!!!!!!!!!
+
+    retrieveProductById(productId){
+        return Promise.resolve()
+            .then(() => {
+                return Product.findById(productId)
+            }) 
+            .then((product)=> product)
+    },
+
     addStory(email, text, like, date, product) {
         return Promise.resolve()
             .then(() => {
@@ -285,29 +336,62 @@ const logic = {
                 this._validateStringField('text', text)
                 this._validateNumber('like', like)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
-                const story = { date, text, like, product, user: user.id }
+                const story = {
+                    date,
+                    text,
+                    like,
+                    product,
+                    user: user.id
+                }
 
                 return Story.create(story)
             })
-            .then(() => true)
+            .then(story => {
+                //TODO: Save created story to the product
+                // 1. story create devuelve un story, de ahí sacas el story id
+                // 2. buscas el producto por el "product"
+                // 3. El producto encontrado: product.history.push(historyId)
+                // 4. return product.save()
+                // 5. return true
+
+                let story = story.id
+
+                return Product.findById({
+                    _id: product
+                })
+            })
+            .then(product => {
+                product.story.push(storyId)
+                product.save()
+            })
+            .then(story => {
+                return story || []
+            })
+            
     },
 
-    removeStory(email, storyId) {
+        removeStory(email, storyId) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
 
-                return Story.findOne({ _id: storyId })
+                return Story.findOne({
+                    _id: storyId
+                })
                     .then(story => {
                         if (!story) throw new LogicError(`story with id ${storyId} does not exist`)
 
@@ -321,7 +405,9 @@ const logic = {
                     })
             })
             .then(() => {
-                return Story.deleteOne({ _id: storyId })
+                return Story.deleteOne({
+                    _id: storyId
+                })
             })
             .then(() => {
                 return true
@@ -332,29 +418,31 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
-                this._validateStringField ('text', text)
+                this._validateStringField('text', text)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
 
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                
-                return Product.findById( productId )
+
+                return Product.findById(productId)
             })
 
             .then(product => {
                 if (!product) throw new LogicError(`product with ${productId} does not exist`)
-        
-                return Story.findById( storyId )
+
+                return Story.findById(storyId)
             })
 
             .then(story => {
                 if (!story) throw new LogicError(`story with ${storyId} does not exist`)
-        
-                    story.text = text
-        
-                    return story.save()
+
+                story.text = text
+
+                return story.save()
             })
 
             .then(() => true)
@@ -363,8 +451,8 @@ const logic = {
 
     listAllStories(productId) {
         return Promise.resolve()
-        .then(() => {
-            return Product.findById( productId )
+            .then(() => {
+                return Product.findById(productId)
             })
             .then(product => {
 
@@ -392,14 +480,16 @@ const logic = {
 
     listStories(email, productId) {
         return Promise.resolve()
-        .then(() => {
-            this._validateEmail(email)
-                return User.findOne({ email })
+            .then(() => {
+                this._validateEmail(email)
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
 
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                return Product.findById( productId )
+                return Product.findById(productId)
             })
             .then(product => {
 
@@ -429,7 +519,9 @@ const logic = {
             .then(() => {
                 this._validateEmail(email)
 
-                return User.findOne({ email })
+                return User.findOne({
+                    email
+                })
             })
             .then(user => {
                 if (!user) throw new LogicError(`user with ${email} email does not exist`)
@@ -456,8 +548,7 @@ const logic = {
                     story.like--
                     const pos = _user.liked.indexOf(storyId)
                     _user.liked.splice(pos, 1)
-                }
-                else {
+                } else {
                     story.like++
                     _user.liked.push(storyId)
                 }
@@ -474,14 +565,30 @@ const logic = {
         return Promise.resolve()
             .then(() => {
                 this._validateStringField('word', word)
-                return Product.find(({ "title": { $regex: `.*${word}.*` } }))
+                return Product.find(({
+                    "title": {
+                        $regex: `.*${word}.*`
+                    }
+                }))
             })
             .then(products => {
-            if (!products || !products.length) throw new LogicError(`search ${word}: no match found`)
+                if (!products || !products.length) throw new LogicError(`search ${word}: no match found`)
                 return products.map(ele => {
-                    const { title, date, photo, _id, user } = ele._doc
+                    const {
+                        title,
+                        date,
+                        photo,
+                        _id,
+                        user
+                    } = ele._doc
                     const id = _id.toString()
-                    return { title, date, photo, id, user: user.toString() }
+                    return {
+                        title,
+                        date,
+                        photo,
+                        id,
+                        user: user.toString()
+                    }
                 })
             })
     }
@@ -497,4 +604,7 @@ class LogicError extends Error {
 }
 
 
-module.exports = { logic, LogicError }
+module.exports = {
+    logic,
+    LogicError
+}

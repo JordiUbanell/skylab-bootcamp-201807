@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 
 // import { logic } from '../logic'
 import '../css/App.css'
+import Menu from './Menu'
 
 class Profile extends Component {
 
@@ -34,6 +35,7 @@ class Profile extends Component {
         const { save, savePassword, saveUserName, saveUserSurname, linkToUploadPhoto } = this
 
         return (<main>
+            {/* <Menu /> */}
             <div className="section__instructions">
                 <div className="section__instructions__form">
                     <div className="section__instructions__form-half">
@@ -41,7 +43,6 @@ class Profile extends Component {
                             <h1>Profile</h1>
                             <form onSubmit={save}>
                                 <h5>persona@email.com</h5>
-                                <input className="input--border" type="password" placeholder="password" onChange={savePassword}></input>
                                 <input className="input--border" type="text" placeholder="name" onChange={saveUserName}></input>
                                 <input className="input--border" type="text" placeholder="surname" onChange={saveUserSurname}></input>
                                 <h5>Upload <a href="/#" onClick={linkToUploadPhoto}>profile photo</a></h5>

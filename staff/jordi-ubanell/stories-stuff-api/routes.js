@@ -64,7 +64,7 @@ router.post('/authenticate', jsonBodyParser, (req, res) => {
 
             const token = jwt.sign({ sub: email }, JWT_SECRET, { expiresIn: JWT_EXP })
 
-            res.json({ message: 'user authenticated', token })
+            res.status(200).json({ message: 'user authenticated', token })
         })
         .catch(err => {
             const { message } = err
@@ -99,7 +99,7 @@ router.patch('/user/:email/updatepassword', [validateJwt, jsonBodyParser], (req,
 //         })
 // })
 
-// list products
+// list products (by user)
 router.get('/user/:email/listproducts', validateJwt, (req, res) => {
     const { params: { email } } = req
 
@@ -153,10 +153,10 @@ router.get('/user/:email/products/:productId/liststories', validateJwt, (req, re
 
 // add product
 router.post('/user/:email/products',  [validateJwt,jsonBodyParser], (req, res) => {
-    const { params: { email}, body:{ title, photo, link, date } } = req
+    const { params: { email}, body: { title, photo, link, date } } = req
 
     return logic.addProduct(email, title, photo, link, date)
-        .then(res.json.bind(res))
+        .then(id => res.status(201).json({message:'product added correctly',id}))
         .catch(err => {
             const { message } = err
 
@@ -190,11 +190,25 @@ router.patch('/user/:email/product/:productId/update', [validateJwt, jsonBodyPar
         })
 })
 
+// retrieve product by id
+
+router.get('/products/:productId', validateJwt, (req, res) => {
+    const { params: { productId } } = req
+
+    logic.retrieveProductById(productId)
+        .then(res.json.bind(res))
+        .catch(err => {
+            const { message } = err
+
+            res.status(err instanceof LogicError ? 400 : 500).json({ message })
+        })
+})
+
 // add story
 router.post('/user/:email/product/:productId/stories', [validateJwt,jsonBodyParser], (req, res) => {
     const { body: {text, like, date}, params: { email, productId} } = req
 
-    logic.addStory(email,text, like, date, productId)
+    logic.addStory(email,text, JSON.parse(like), date, productId)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err

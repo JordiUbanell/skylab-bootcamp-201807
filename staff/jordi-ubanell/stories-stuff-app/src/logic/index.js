@@ -1,12 +1,35 @@
+const validateEmail = require('./../utils/validate-email')
+const validateUrl = require('./../utils/validate-url')
+
 const logic = {
-     
+    _validateStringField(name, value) {
+        if (typeof value !== 'string' || !value.trim().length || value === '/n') throw Error(`invalid ${name}`)
+    },
+
+    _validateEmail(email) {
+        if (!validateEmail(email)) throw Error('invalid email')
+    },
+
+    _validateDateField(name, value) {
+        if (typeof value !== 'number' || value !== value) throw Error(`invalid ${name}`)
+    },
+
+
+    _validateNumber(name, value) {
+        if (typeof value !== 'number') throw Error(`invalid ${name}`)
+    },
+
+    _validateUrl(name, url) {
+        if (!validateUrl(url)) throw Error(`invalid ${name}`)
+    },
+
     /**
      * TODO!!!!!
      * 
      * @param {*} userEmail 
      */
     _userEmail(userEmail) {
-        if(userEmail !== undefined) {
+        if (userEmail !== undefined) {
             this.userEmail = userEmail
             return
         }
@@ -23,7 +46,7 @@ const logic = {
      * @param {String} userToken
      */
     _userToken(userToken) {
-        if(userToken !== undefined) {
+        if (userToken !== undefined) {
             this.userToken = userToken
             return
         }
@@ -37,7 +60,7 @@ const logic = {
      * @param {*} userLikes 
      */
     _userLikes(userLikes) {
-        if(userLikes !== undefined) {
+        if (userLikes !== undefined) {
             this.userLikes = userLikes
             return
         }
@@ -83,7 +106,7 @@ const logic = {
      * 
      * @throws {Promise} if there is an error throws an error message
      */
-    _callApiStory(path, method = 'get', body, token) {
+    _callApiStory(path, method = 'get', body, token, expectedStatus = 200) {
 
         const config = {
             method
@@ -97,11 +120,17 @@ const logic = {
         if (body) config.body = JSON.stringify(body)
 
         return fetch('http://localhost:8080/api/' + path, config)
-            .then(res => res.json())
             .then(res => {
-                if (res.status === 'KO') throw Error(res.error)
-
-                return res;
+                if (res.status === expectedStatus)
+                    return res.json()
+                else {
+                    return res.json()
+                        .then(({
+                            message
+                        }) => {
+                            throw Error(message)
+                        })
+                }
             })
     },
 
@@ -112,9 +141,20 @@ const logic = {
      * @returns {Promise} the id of the registered user
      */
     register(email, password) {
-        return this._callApiStory('register', 'post', { email, password })
+        return Promise.resolve()
             .then(() => {
-                return true
+                this._validateEmail(email)
+                this._validateStringField('password', password)
+
+                if (password.length < 6) throw Error('Password must be at least 6 characters')
+
+                return this._callApiStory('register', 'post', {
+                        email,
+                        password
+                    }, false, 201)
+                    .then(() => {
+                        return true
+                    })
             })
     },
 
@@ -125,13 +165,23 @@ const logic = {
      * @returns {Promise} the email, token of the logged user and saves in sessionStorage
      */
     authenticate(email, password) {
-        return this._callApiStory('/authenticate', 'post', { email, password })
-            .then(({ token }) => {
-                this._userEmail(email)
-                this._userToken(token)
+        return Promise.resolve().then(() => {
+            this._validateEmail(email)
+            this._validateStringField('password', password)
 
-                return true
-            })
+            return this._callApiStory('/authenticate', 'post', {
+                    email,
+                    password
+                })
+                .then(({
+                    token
+                }) => {
+                    this._userEmail(email)
+                    this._userToken(token)
+
+                    return true
+                })
+        })
     },
 
     /**
@@ -159,7 +209,10 @@ const logic = {
      * @returns {Promise} the user account deleted and the sessionStorage cleared
      */
     deleteUser(email, password) {
-        return this._callApiStory(`/unregister`, { email: this.userEmail, password }, true)
+        return this._callApiStory(`/unregister`, {
+                email: this.userEmail,
+                password
+            }, true)
             .then(() => {
                 this.userEmail = null
                 this.userToken = null
@@ -179,8 +232,15 @@ const logic = {
     /**
      * @returns {status} the email, token status to know if the user is logged
      */
-    get loggedIn() {
-        return this._userEmail() && this._userToken()
+    // get loggedIn() {
+    //     const res = this._userEmail() && this._userToken()
+    //     return res
+    // },
+
+    loggedIn() {
+        const res = this._userEmail() && this._userToken()
+
+        return !!res
     },
 
     /**
@@ -191,8 +251,56 @@ const logic = {
     searchWord(query) {
         return this._callApiStory('user/search/instant?query=' + query)
             .then((res) => res)
-    }
+    },
 
+    addProduct(title, photo, link) {
+        return Promise.resolve().then(() => {
+            // TODO: Validaciones de los campos
+            this._validateStringField('title', title)
+            this._validateUrl('photo', photo)
+            this._validateUrl('link', link)
+
+            const date = Date.now()
+
+            return this._callApiStory(`user/${this._userEmail()}/products`, 'POST', {
+                title,
+                photo,
+                link,
+                date
+            }, {
+                authorization: `bearer ${this._userToken()}`,
+                'content-type': 'application/json'
+            }, 201)
+
+        })
+    },
+
+    retrieveProductById(productId) {
+        return Promise.resolve().then(() => {
+
+            return this._callApiStory(`/product/${productId}`, 'GET', undefined, undefined, 201)
+                .then((product) => product)
+
+        })
+    },
+
+    addStory(text, like = 0, productId) {
+        return Promise.resolve().then(() => {
+            // TODO: Validaciones de los campos
+
+            this._validateStringField('text', text)
+            this._validateNumber('like', like)
+
+            const date = Date.now()
+            debugger
+            return this._callApiStory(`user/${this._userEmail()}/product/${productId}/stories`, 'POST', {
+                text,
+                like,
+                date
+            }, {
+                authorization: `bearer ${this._userToken()}`,'content-type': 'application/json'}, 201)
+        })
+    }
 }
 
 if (typeof module !== 'undefined') module.exports = logic;
