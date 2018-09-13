@@ -180,8 +180,6 @@ describe('Logic', () => {
             text = 'hola que tal pim pam lldskjf skdjf sldkfj d',
             like = 0
         
-
-
         beforeEach(() => {
             email = `persona-${Math.random()}@mail.com`
             return logic.register(email, password)
@@ -200,10 +198,9 @@ describe('Logic', () => {
 
         it('should create a story correctly', () => {
             return logic.addStory(text, like, id)
-                .then(res => {
-                    debugger
-                    expect(res).to.be.true
-                })
+            .then(storyId => {
+                expect(storyId).to.be.a('string')
+            })
         }) 
     })
 
