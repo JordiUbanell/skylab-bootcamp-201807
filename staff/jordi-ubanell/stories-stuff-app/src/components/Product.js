@@ -24,7 +24,7 @@ class Product extends Component {
 
         logic.addProduct(title, photo, link)
             .then(product => {
-                return logic.addStory(text, undefined, product)
+                return logic.addStory(text, undefined, product.id)
             })
             .then(res => {
                 alert(res)

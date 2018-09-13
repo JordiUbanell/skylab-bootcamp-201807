@@ -324,7 +324,7 @@ describe('logic', () => {
         it('should succeed on correct data', () =>
             logic.addProduct(email, title, photo, link, date)
                 .then(res => {
-                    expect(res).to.be.true
+                    expect(res).to.be.a('string')
                     return User.findOne({ email })
                 })
                 .then(user => {
@@ -454,7 +454,7 @@ describe('logic', () => {
         it('should succeed on correct data', () =>
             logic.addProduct(email, title, photo, link, date)
                 .then(res => {
-                    expect(res).to.be.true
+                    expect(res).to.be.a('string')
                     return User.findOne({ email })
                 })
                 .then(user => {
@@ -478,7 +478,7 @@ describe('logic', () => {
                     return User.findOne({ email })
                 })
                 .then(user => {
-                    
+
                     return Product.find({ user: productId.id })
                 })
                 .then(products => {
@@ -593,7 +593,7 @@ describe('logic', () => {
         // )
     })
 
-    true && describe('remove product', () => {
+    !true && describe('remove product', () => {
         let products = [
             { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
             { date: Date.now(), title: 'text 2', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
@@ -798,7 +798,7 @@ describe('logic', () => {
         it('should succeed on correct data', () => {
             return logic.addStory(email, text, like, date, productId)
                 .then(res => {
-                    expect(res).to.be.true
+                    expect(res).to.be.a('string')
 
                     return Story.find()
                 })
@@ -873,7 +873,7 @@ describe('logic', () => {
         )
     })
 
-    true && describe('update story', () => {
+    false && describe('update story', () => {
         let date = Date.now(), text = 'explaining something about lambretta', like = 12, newText = 'what do you know about Lambretta'
         const product = { title: 'my post about Lambretta', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg", link: "https://es.wallapop.com/item/lambretta-229672803" }
         let productId, storyId
@@ -897,8 +897,10 @@ describe('logic', () => {
 
         it('should succeed on correct data', () => {
             return logic.addStory(email, text, like, date, productId)
-                .then(res => {
-                    expect(res).to.be.true
+                .then(_storyId => {
+                    expect(_storyId).to.be.a('string')
+
+                    storyId = _storyId
 
                     return Story.find()
                 })
@@ -911,6 +913,8 @@ describe('logic', () => {
                     expect(stories[0].date).to.deep.equal(date)
                 })
         })
+
+
 
         it('should succeed on changed correct data', () => {
             debugger
@@ -1004,6 +1008,75 @@ describe('logic', () => {
     //         })
     // })
 
+    describe('retrieve story by id', () => {
+        let productId, userId, name= 'pepe', surname = 'gotera'
+
+        let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+
+        let stories = [
+            { text: 'Story 1', like: 1, date: Date.now() },
+            { text: 'Story 2', like: 2, date: Date.now() }
+        ]
+
+        beforeEach(() =>
+            User.create({ email, password, name, surname })
+                .then(user => {
+                    userId = user.id
+
+                    return Product.create({ ...product, user: ObjectId(userId) })
+                })
+
+                .then(product => {
+                    productId = product._id
+
+                    stories.forEach(story => {
+                        story.user = ObjectId(userId)
+                        story.product = ObjectId(productId)
+                    })
+
+                    return Story.insertMany(stories)
+                })
+                .then(stories => {
+                    return Product.findById(productId)
+                        .then(product => {
+                            product.story = stories.map(story => story._doc._id.toString())
+                            return product.save()
+                        })
+                })
+                .then(() => {
+                    return User.findById(userId)
+                        .then(user => {
+                            user.products.push(productId)
+                            return user.save()
+                        })
+                })
+        )
+
+        it('should retrieve correctly a product by id (and data of user and stories)', () => {
+            return logic.retrieveProductById(productId)
+                .then(res => {
+                    debugger
+                    expect(res).to.exist
+                    // expect(_users.length).to.equal.to(users.length)
+                    // expect(_users.length).to.equal.to(1)
+                    expect(_stories.length).to.equal(stories.length)
+                    expect(_stories.length).to.equal(2)
+                })
+        })
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+
+    })
+
+
+
+
+
+
     true && describe('list stories', () => {
         let product = { date: Date.now(), title: 'text 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
 
@@ -1077,12 +1150,12 @@ describe('logic', () => {
                 .then(user => {
                     userId1 = user.id
 
-                    return Product.create({...product, user: userId1})
+                    return Product.create({ ...product, user: userId1 })
                 })
                 .then(product => {
                     productId = product.id
 
-                    return Story.create({ ...story1, product: productId, user: userId1  })
+                    return Story.create({ ...story1, product: productId, user: userId1 })
                 })
                 .then(story => {
                     storyId1 = story.id
@@ -1092,7 +1165,7 @@ describe('logic', () => {
                 .then(user => {
                     userId2 = user.id
 
-                    return Story.create({...story2, product: productId, user: userId2})
+                    return Story.create({ ...story2, product: productId, user: userId2 })
                 })
                 .then(story => {
                     storyId2 = story.id
@@ -1195,7 +1268,7 @@ describe('logic', () => {
         it('should succeed on create a history with the word to search', () =>
             logic.addProduct(email, title, photo, link, date, word)
                 .then(res => {
-                    expect(res).to.be.true
+                    expect(res).to.be.a('string')
                     return User.findOne({ email })
                 })
                 .then(user => {

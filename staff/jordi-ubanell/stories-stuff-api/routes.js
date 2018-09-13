@@ -113,8 +113,7 @@ router.get('/user/:email/listproducts', validateJwt, (req, res) => {
 })
 
 // list all products from everybody
-router.get('/user/:email/listallproducts', validateJwt, (req, res) => {
-    const { params: { email } } = req
+router.get('/listallproducts', (res) => {
 
     logic.listAllProducts(email)
         .then(res.json.bind(res))
@@ -178,7 +177,7 @@ router.delete('/user/:email/products/:productId', validateJwt, (req, res) => {
 })
 
 // update product
-router.patch('/user/:email/product/:productId/update', [validateJwt, jsonBodyParser], (req, res) => {
+router.patch('/user/:email/product/:productid/update', [validateJwt, jsonBodyParser], (req, res) => {
     const { params: { email, productId }, body: { title, photo, link }} = req
 
     logic.updateProduct(email, title, photo, link, productId)
@@ -209,7 +208,7 @@ router.post('/user/:email/product/:productId/stories', [validateJwt,jsonBodyPars
     const { body: {text, like, date}, params: { email, productId} } = req
 
     logic.addStory(email,text, JSON.parse(like), date, productId)
-        .then(res.json.bind(res))
+        .then(storyId => res.status(201).json(storyId))
         .catch(err => {
             const { message } = err
 

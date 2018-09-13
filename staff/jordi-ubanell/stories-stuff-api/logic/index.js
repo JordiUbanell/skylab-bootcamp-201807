@@ -320,13 +320,79 @@ const logic = {
 
     //TODO: Retrieve product by id !!!!!!!!!!!
 
+    // populate({
+    //     path: 'user'
+    //     , select: 'email name surname photo products reviews'
+    //     , options: { lean: true}
+    //     , populate: {
+    //         path: 'products'
+    //         , select: 'state'
+    //         , where: { 'state': { '$in': ['sold', 'reserved', 'pending']}}
+    //         , options: { lean: true}
+    //     }
+    // }).
+    // lean()
+
     retrieveProductById(productId){
         return Promise.resolve()
             .then(() => {
-                return Product.findById(productId)
+                return Product.findById(productId).populate([
+                    {
+                        path: 'user',
+                        options: { lean: true }
+                    },
+                    {
+                        path: 'story',
+                        options: {lean: true},
+                        populate: {
+                            path: 'user',
+                            options: { lean: true}
+                        }
+                    }
+                ]).lean()
             }) 
-            .then((product)=> product)
+            .then(product => {
+                debugger
+
+                delete product.user.__v
+                delete product.user._id
+                delete product.user.email
+                delete product.user.password
+                delete product.user.products
+                delete product.user.stories
+                delete product.user.liked
+
+                debugger
+
+                return product
+            })
+            .then(product => {
+
+                return product.story.forEach(story => {
+                    story.id = story._id.toString()
+
+                    delete story.__v
+                    delete story._id
+                    delete story.product
+
+                    debugger
+                })
+            })
     },
+
+    // .then(stories => {
+
+    //     if (stories) {
+    //         debugger
+    //         stories.forEach(story => {
+    //             story.id = story._id.toString()
+
+    //             delete story._id
+    //             delete story.__v
+    //         })
+    //     }
+    //     return stories || []
+    // })
 
     addStory(email, text, like, date, product) {
         return Promise.resolve()
@@ -361,23 +427,23 @@ const logic = {
                 // 4. return product.save()
                 // 5. return true
 
-                let story = story.id
+                const storyId = story.id
 
-                return Product.findById({
-                    _id: product
+                return Product.findById(product)
+                    .then(product => {
+                        if(!product) throw Error('Product not found')
+
+                        product.story.push(storyId)
+
+                        return product.save()
+                })
+                .then(() => {
+                    return storyId
                 })
             })
-            .then(product => {
-                product.story.push(storyId)
-                product.save()
-            })
-            .then(story => {
-                return story || []
-            })
-            
     },
 
-        removeStory(email, storyId) {
+    removeStory(email, storyId) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
@@ -445,7 +511,20 @@ const logic = {
                 return story.save()
             })
 
-            .then(() => true)
+            .then(() => storyId)
+
+
+            // const storyId = story.id
+
+            // return Product.findById({
+            //     _id: product
+            // })
+            // .then(product => {
+            //     product.story.push(storyId)
+            //     product.save()
+            // })
+            // .then(() => storyId)
+            
     },
 
 
