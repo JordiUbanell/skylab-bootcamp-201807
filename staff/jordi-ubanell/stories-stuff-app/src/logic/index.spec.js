@@ -204,4 +204,93 @@ describe('Logic', () => {
         }) 
     })
 
+    describe('Search', () => {
+        let email
+        const password = "12345678"
+
+        const title = 'my post about Lambretta',
+            photo = "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg",
+            link = "https://es.wallapop.com/item/lambretta-229672803"
+
+        beforeEach(() => {
+            email = `persona-${Math.random()}@mail.com`
+            return logic.register(email, password)
+                .then(() => logic.authenticate(email, password))
+        })
+
+        it('should create a product correctly', () => {
+            return logic.addProduct(title, photo, link)
+                .then(res => {
+                    expect(res).to.exist
+                    expect(res.message).to.equal('product added correctly')
+                    expect(res.id.length).to.equal(24)
+                })
+        })
+        it('should find a word in a product', () => {
+            return logic.searchWord('Lambretta')
+                .then(res => {
+                    expect(res).to.exist
+                })
+        })
+    })
+
+    
+ 
+    
+    true && describe('list the products of everyone', () => {
+        let products = [
+            { date: Date.now(), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+        ]
+
+        let products2 = [
+            { date: Date.now(), title: 'primer titular 1', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'cumple jordi', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'pizza', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'la china', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" },
+            { date: Date.now(), title: 'party hard', photo: "https://assets.catawiki.nl/assets/2017/1/23/e/e/8/ee8f1666-e145-11e6-9f7b-06c7bf37e663.jpg" }
+        ]
+
+        beforeEach(() =>
+            User.create({ email, password })
+                .then(user => {
+                    const userId = user.id
+                    products.forEach(product => product.user = userId)
+
+                    return Product.insertMany(products)
+                })
+                .then(_products => products = _products.map(product => product._doc))
+                .then(() => {
+
+                    return User.create({ email: 'prueba@gmail.com', password: 'password' })
+                        .then(user => {
+                            const userId = user.id
+                            products2.forEach(product => product.user = userId)
+
+                            return Product.insertMany(products2)
+                        })
+                        .then(_products => products2 = _products.map(product => product._doc))
+                })
+        )
+
+        after(() => Promise.all([
+            Product.deleteMany(),
+            Story.deleteMany(),
+            User.deleteMany()
+        ]))
+
+        it('should correctly list the products of everyone', () => {
+            return logic.listAllProducts(email)
+                .then(_products => {
+                    expect(_products.length).to.equal(products.length + products2.length)
+
+                    expect(_products).to.deep.equal(resultingProducts)
+                    expect(_products.length).to.be.equal(10)
+                })
+        })
+    })
+
 })

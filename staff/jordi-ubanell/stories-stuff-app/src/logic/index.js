@@ -24,11 +24,15 @@ const logic = {
     },
 
     /**
-     * TODO!!!!!
+     * Set / Get userMail
+     * 
+     * @example - logic._userMail() // Returns the token
+     * @example - logic._userMail(mail) // Saves the token
      * 
      * @param {*} userEmail 
      */
     _userEmail(userEmail) {
+        debugger
         if (userEmail !== undefined) {
             this.userEmail = userEmail
             return
@@ -55,9 +59,12 @@ const logic = {
     },
 
     /**
-     * TODO!!!!!
+     * Set / Get userLikes
      * 
-     * @param {*} userLikes 
+     * @example - logic._userLikes() // Returns true
+     * @example - logic._userLikes(number of likes) // Update the value
+     * 
+     * @param {Number} userLikes 
      */
     _userLikes(userLikes) {
         if (userLikes !== undefined) {
@@ -93,8 +100,12 @@ const logic = {
         }
         if (body) config.body = JSON.stringify(body)
 
+        // https://powerful-thicket-52138.herokuapp.com/api/ 
+        //http://localhost:8080/api/
+
         return fetch('http://localhost:8080/api/' + path, config)
             .then(res => {
+                debugger
                 if (res.status === expectedStatus)
                     return res.json()
                 else {
@@ -114,17 +125,21 @@ const logic = {
      * 
      * @returns {Promise} the id of the registered user
      */
-    register(email, password) {
+    register(email, password, name, surname) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
                 this._validateStringField('password', password)
+                this._validateStringField('name', name)
+                this._validateStringField('surname', surname)
 
                 if (password.length < 6) throw Error('Password must be at least 6 characters')
 
                 return this._callApiStory('register', 'post', {
                     email,
-                    password
+                    password,
+                    name, 
+                    surname
                 }, false, 201)
                     .then(() => {
                         return true
@@ -211,21 +226,27 @@ const logic = {
     //     return res
     // },
 
+
+    
+    // writeByUser() {
+    //     const res = this._userEmail() && this._userToken() &&         
+    // }
+
     loggedIn() {
         const res = this._userEmail() && this._userToken()
 
         return !!res
     },
 
-    // /**
-    //  * @param {string} query
-    //  * 
-    //  * @returns {Promise} an ingredients list using a query
-    //  */
-    // searchWord(query) {
-    //     return this._callApiStory('user/search/instant?query=' + query)
-    //         .then((res) => res)
-    // },
+    /**
+     * @param {string} query
+     * 
+     * @returns {Promise} an ingredients list using a query
+     */
+    searchWord(query) {
+        return this._callApiStory('user/search/instant?query=' + query)
+            .then((res) => res)
+    },
 
     addProduct(title, photo, link) {
         return Promise.resolve().then(() => {
@@ -248,34 +269,37 @@ const logic = {
 
         })
     },
-
+    
     updateProduct(title, photo, link, productId) {
         return Promise.resolve().then(() => {
-
+            
             this._validateStringField('title', title)
             this._validateUrl('photo', photo)
             this._validateUrl('link', link)
-
+            
             const date = Date.now()
-
-            return this._callApiStory(`user/${this._userEmail()}/${productId}/update`, 'PATCH',
+            
+            return this._callApiStory(`user/${this._userEmail()}/${productId}/update`, 'PATCH'
             )
         })
     },
-
-    // router.patch('/user/:email/product/:productId/update', [validateJwt, jsonBodyParser], (req, res) => {
-    //     const { params: { email, productId }, body: { title, photo, link }} = req
-
-    listAllProducts() {
-        return Promise.resolve().then(() => {
-
-            return this._callApiStory(`listallproducts`, 'GET', undefined, undefined, 201)
-                .then((products) => products)
-
-        })
+    
+    deleteProduct(_userEmail, productId) {
+        return Promise.resolve().then(() =>
+            this.removeProduct(`user/${this._userEmail()}/product/${productId}`)
+            .then(products => products )
+            )
     },
 
-
+    listAllProducts() {
+        return Promise.resolve().then(() => {          
+            return this._callApiStory(`listallproducts`, 'GET', undefined, undefined, 200)
+                .then((products) => {
+                    return products
+                })
+                
+        })
+    },
 
     retrieveProductById(productId) {
         return Promise.resolve().then(() => {
@@ -308,35 +332,72 @@ const logic = {
         })
     },
 
-    listAllStories(productId) {
+    listAllStoriesByProductId(productId) {
         return Promise.resolve().then(() =>
-
             this._callApiStory(`products/${productId}/listallstories`))
             .then(stories => stories)
     },
 
-    addLikeToStory(email, productId, storyId) {
-        return Promise.resolve().then(() =>
-
-            this._callApiStory(`user/${email}/products/${productId}/stories/${storyId}/like`, 'POST',                 {
-                {authorization: `bearer ${this._userToken()}`, 'content-type': 'application/json'
-            }, 201)
-
-                .then(() => true)
-        )
+    updateStory(_userEmail, text, productId, storyId) {
+        return Promise.resolve().then(() => {
+            
+            this._validateStringField('text', text)
+            
+            const date = Date.now()
+            
+            return this._callApiStory(`user/${this._userEmail()}/product/${productId}/story/${storyId}/update`, 'PATCH'
+            )
+        })
     },
 
-    // router.post('/user/:email/products/:productId/stories/:storyId/like', [validateJwt,jsonBodyParser], (req, res) => {
-    //     const { params: { email, productId, storyId } } = req
+    deleteStory(email, storyId) {
+        return Promise.resolve().then(() =>
+            this.removeStory(`user/${email}/stories/${storyId}`)
+            .then(stories => stories )
+            )
+    },
 
+    // /user/:email/stories/:storyId
+    
     searchWord(word) {
         return Promise.resolve().then(() => {
-
+            
             this._callApiStory(`user/search/${word}`)
-                .then(result => result)
+            .then(result => result)
 
+        })
+    },
+    
+    AddLikeToStory(email, productId, storyId) {
+
+        return Promise.resolve().then(() => {
+            
+            this._callApiStory(`/user/${email}/products/${productId}/stories/${storyId}/like`, 'POST',
+            undefined,
+            {
+                authorization: `bearer ${this._userToken()}`, 'content-type': 'application/json'
+            }, 201)
+            .then(()=> true)
         })
     }
 }
 
+
+
 if (typeof module !== 'undefined') module.exports = logic;
+
+
+
+    // addLikeToStory(email, productId, storyId) {
+    //     return Promise.resolve().then(() =>
+    
+    //         this._callApiStory(`user/${email}/products/${productId}/stories/${storyId}/like`, 'POST',                 {
+    //             {authorization: `bearer ${this._userToken()}`, 'content-type': 'application/json'
+    //         }, 201)
+    
+    //             .then(() => true)
+    //     )
+    // },
+    
+    // router.post('/user/:email/products/:productId/stories/:storyId/like', [validateJwt,jsonBodyParser], (req, res) => {
+    //     const { params: { email, productId, storyId } } = req

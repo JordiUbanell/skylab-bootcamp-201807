@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
-import { Link, withRouter } from 'react-router-dom'
-import icon_vote from '../images/icon_vote.svg'
+import { withRouter, Link } from 'react-router-dom'
+
 import minicon_close from '../images/minicon_close.svg'
 import minicon_edit from '../images/minicon_edit.svg'
+import icon_profile from '../images/icon_profile.svg'
+
+import icon_vote from '../images/icon_vote.svg'
 
 import logic from '../logic'
 import '../css/App.css'
-import icon_profile from '../images/icon_profile.svg'
-// import Detail from './Detail'
 
-class Post extends Component {
+class Detail extends Component {
 
     state = {
         text: '',
@@ -29,12 +30,6 @@ class Post extends Component {
         e.preventDefault()
 
         this.props.history.push('/register')
-    }
-
-    onAddLikeToStory = e => {
-        e.preventDefault()
-
-        this.props.history.push('/user/${email}/products/${productId}/stories/${storyId}/like')
     }
 
     onSaveStory = (event) => {
@@ -57,7 +52,6 @@ class Post extends Component {
 
     render() {
         const { onSaveStory, saveText } = this
-
         return (
             <div className="App">
 
@@ -214,11 +208,11 @@ class Post extends Component {
                     </div>
                 </section>
 
-                {/* <Detail /> */}
+                <Detail />
 
             </div >
         );
     }
 }
 
-export default withRouter(Post)
+export default withRouter(Detail)

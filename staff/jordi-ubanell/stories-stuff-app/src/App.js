@@ -20,10 +20,14 @@ import Profile from './components/Profile'
 import Search from './components/Search'
 import Post from './components/Post'
 import Menu from './components/Menu'
-import Instructions from './components/Instructions'
-import List from './components/List'
+import Detail from './components/Detail'
 import Product from './components/Product'
 import PageNotFound from './components/PageNotFound'
+
+import ProductDetail from './components/ProductDetail'
+
+// import Instructions from './components/Instructions'
+// import Productslist from './components/Productslist'
 
 import logic from './logic'
 
@@ -53,7 +57,7 @@ class App extends Component {
     logic.logout = () => {
       this.userEmail = null
       this.userToken = null
-      
+
       sessionStorage.clear()
     }
   }
@@ -65,7 +69,7 @@ class App extends Component {
 
   render() {
     this.initApp()
-    
+
     return (
       <div className="App">
         <Menu />
@@ -73,7 +77,6 @@ class App extends Component {
         {/* <Home />
         <Menu />
         <Instructions /> 
-        <List />
         <Search />
         <Register />
         <Login />
@@ -86,17 +89,18 @@ class App extends Component {
           <Route exact path="/" render={() => (<Home />)} />
           <Route path="/about" render={() => (<About />)} />
           <Route path="/search" render={() => (<Search />)} />
-          <Route path="/post" render={() => (<Post />)} />
+          <Route exact path="/post/:productId" component={ProductDetail} />
+
           <Route path="/register" render={() => logic.loggedIn() ? <Redirect to="/" /> : <Register />} />
           <Route path="/login" render={() => logic.loggedIn() ? <Redirect to="/" /> : <Login />} />
-          <Route path="/profile" render={() => logic.loggedIn() ? <Profile /> : <Redirect to="/" /> } />
-          <Route path="/product" render={() => logic.loggedIn() ? <Product /> : <Redirect to="/" /> } />
+          <Route path="/profile" render={() => logic.loggedIn() ? <Profile /> : <Redirect to="/" />} />
+          <Route path="/product" render={() => logic.loggedIn() ? <Product /> : <Redirect to="/" />} />
+          <Route path="/product/productId" render={() => (<Post />)} />
+          <Route path="/productdetail" render={ <ProductDetail />} />
 
-          {/* <Route path="/menu" render={<Menu />} />
-          <Route path="/list" render={ <List />} />
-          <Route path="/product" render={ <Product />} />
-          <Route path="/profile" render={() => this.isLoggedIn() ? <Redirect to="/home" /> : <Profile onLoggedIn={this.onLoggedIn} />} /> */}
-          
+
+          {/* <Route path="/profile" render={() => this.isLoggedIn() ? <Redirect to="/home" /> : <Profile onLoggedIn={this.onLoggedIn} />} /> */}
+
           <PageNotFound />
         </Switch>
 

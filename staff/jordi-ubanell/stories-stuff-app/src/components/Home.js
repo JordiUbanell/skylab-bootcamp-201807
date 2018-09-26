@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import { Switch, Route, withRouter, Redirect } from 'react-router-dom'
 
+
 import '../css/App.css'
 
-import Menu from './Menu'
 import Instructions from './Instructions'
-import List from './List'
+import Productslist from './Productslist'
 
 class Home extends Component {
 
@@ -15,7 +15,8 @@ class Home extends Component {
   
         {/* <Menu /> */}
         <Instructions />
-        <List />       
+        {/* <List />        */}
+        <Productslist />
 
       </div>
     );

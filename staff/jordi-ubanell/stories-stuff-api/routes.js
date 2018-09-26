@@ -28,11 +28,12 @@ const jsonBodyParser = bodyParser.json()
 //     }
 //    });
 
+
 // register
 router.post('/register', jsonBodyParser, (req, res) => {
-    const { body: { email, password } } = req
+    const { body: { email, password, name, surname} } = req
 
-    logic.register(email, password)
+    logic.register(email, password, name, surname)
         .then(() => res.status(201).json({ message: 'user registered' }))
         .catch(err => {
             const { message } = err
@@ -113,10 +114,10 @@ router.get('/user/:email/listproducts', validateJwt, (req, res) => {
 })
 
 // list all products from everybody
-router.get('/listallproducts', (res) => {
+router.get('/listallproducts', (req, res) => {
 
-    logic.listAllProducts(email)
-        .then(res.json.bind(res))
+    logic.listAllProducts()
+        .then(products => res.json({ products }))
         .catch(err => {
             const { message } = err
 
@@ -128,7 +129,7 @@ router.get('/listallproducts', (res) => {
 router.get('/products/:productId/listallstories', (req, res) => {
     const { params: { productId } } = req
 
-    logic.listAllStories(productId)
+    logic.listAllStoriesByProductId(productId)
         .then(res.json.bind(res))
         .catch(err => {
             const { message } = err
@@ -191,7 +192,7 @@ router.patch('/user/:email/product/:productid/update', [validateJwt, jsonBodyPar
 
 // retrieve product by id
 
-router.get('/products/:productId', validateJwt, (req, res) => {
+router.get('/products/:productId', (req, res) => {
     const { params: { productId } } = req
 
     logic.retrieveProductById(productId)
@@ -243,11 +244,11 @@ router.patch('/user/:email/product/:productId/story/:storyId/update', [validateJ
 })
 
 // add like
-router.post('/user/:email/products/:productId/stories/:storyId/like', [validateJwt,jsonBodyParser], (req, res) => {
+router.post('/user/:email/products/:productId/stories/:storyId/like', validateJwt, (req, res) => {
     const { params: { email, productId, storyId } } = req
 
     logic.addLikeToStory(email, productId, storyId)
-        .then(res.json.bind(res))
+        .then(res.status(201).json.bind(res))
         .catch(err => {
             const { message } = err
 

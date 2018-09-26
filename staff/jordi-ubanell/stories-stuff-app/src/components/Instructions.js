@@ -1,13 +1,30 @@
 import React, { Component } from 'react'
+import { Switch, Route, Link, withRouter, Redirect } from 'react-router-dom'
 import icon_object from '../images/icon_object.svg'
 import icon_story from '../images/icon_story.svg'
 import icon_vote from '../images/icon_vote.svg'
 
 import '../css/App.css'
+import logic from './../logic'
 
 class Instructions extends Component {
 
+    onLinkToRegister = e => {
+        e.preventDefault()
+
+        this.props.history.push('/register')
+    }
+
+    onLinkNewStory = e => {
+        e.preventDefault()
+
+        this.props.history.push('/product')
+    }
+
     render() {
+        
+        const { onLinkNewStory, onLinkToRegister } = this
+        
 
         return (<main>
             {/* <div className="section__instructions__form-half">
@@ -33,7 +50,7 @@ class Instructions extends Component {
                                     <br />
 
                                     {/* <button type="submit">register</button> */}
-                                    <button type="submit">register</button>
+                                    {!logic.loggedIn() && <button onClick={this.onLinkToRegister}> register </button>}
 
                                 </div>
                             </div>
@@ -76,7 +93,14 @@ class Instructions extends Component {
 
                                 </div>
                                 <div className="section__instructions__icon ">
-                                    <button type="submit">write new story</button>
+                                    
+                                    {/* <button onClick={this.onLinkNewStory}> write new story </button> */}
+
+
+                                     {logic.loggedIn() ? <button onClick={this.onLinkNewStory}> write new story </button> : <button onClick={this.onLinkToRegister}> write new story </button>} 
+
+                                    {/* <Link to="/product">new story</Link> */}
+
                                 </div>
                             </div>
                         </div>
@@ -90,4 +114,4 @@ class Instructions extends Component {
     }
 }
 
-export default Instructions
+export default withRouter (Instructions)
