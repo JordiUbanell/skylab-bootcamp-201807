@@ -26,11 +26,13 @@ module.exports = new Schema({
     },
 
     name: {
-        type: String
+        type: String, 
+        required: true
     },
 
     surname: {
-        type: String
+        type: String,
+        required: true
     },
 
     photo: {

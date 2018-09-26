@@ -61,7 +61,6 @@ class Menu extends Component {
 
                                     {!logic.loggedIn() && <li><h5><Link to="/login">login</Link></h5></li>}
                                     {!logic.loggedIn() && <li><h5><Link to="/register">register</Link></h5></li>}
-
                                     {logic.loggedIn() && <li><h5><Link to="/product">new story</Link></h5></li>}
                                 </ul>
                             </div>

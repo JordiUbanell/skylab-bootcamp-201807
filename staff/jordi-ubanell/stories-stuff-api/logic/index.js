@@ -67,11 +67,13 @@ const logic = {
         if (!validateUrl(url)) throw new LogicError(`invalid ${name}`)
     },
 
-    register(email, password) {
+    register(email, password, name, surname) {
         return Promise.resolve()
             .then(() => {
                 this._validateEmail(email)
                 this._validateStringField('password', password)
+                this._validateStringField('name', name)
+                this._validateStringField('surname', surname)
 
                 return User.findOne({
                     email
@@ -82,7 +84,9 @@ const logic = {
 
                 return User.create({
                     email,
-                    password
+                    password,
+                    name,
+                    surname
                 })
             })
             .then(() => true)
@@ -273,7 +277,7 @@ const logic = {
             .then(() => {
                 return Product.find({}, {
                     __v: 0
-                }).lean()
+                }).sort({ date: -1 }).populate('user').lean()
             })
             .then(products => {
                 if (products) {
@@ -318,6 +322,28 @@ const logic = {
             })
     },
 
+    // return Product.findById(productId)
+    //     .populate([
+    //         {
+    //             path: 'user',
+    //             select: 'name surname -_id'
+    //         },
+    //         {
+    //             path: 'story',
+    //             select: 'text like date',
+    //             options: { sort: { like: -1 }, lean: true },
+    //             populate: {
+    //                 path: 'user',
+    //                 select: 'name surname -_id',
+    //                 options: {  lean: true }
+    //             }
+    //         }
+    //     ])
+    //     .lean()
+
+
+
+
     //TODO: Retrieve product by id !!!!!!!!!!!
 
     // populate({
@@ -333,7 +359,7 @@ const logic = {
     // }).
     // lean()
 
-    retrieveProductById(productId){
+    retrieveProductById(productId) {
         return Promise.resolve()
             .then(() => {
                 return Product.findById(productId).populate([
@@ -343,17 +369,15 @@ const logic = {
                     },
                     {
                         path: 'story',
-                        options: {lean: true},
+                        options: { lean: true },
                         populate: {
                             path: 'user',
-                            options: { lean: true}
+                            options: { lean: true }
                         }
                     }
                 ]).lean()
-            }) 
+            })
             .then(product => {
-                debugger
-
                 delete product.user.__v
                 delete product.user._id
                 delete product.user.email
@@ -362,21 +386,19 @@ const logic = {
                 delete product.user.stories
                 delete product.user.liked
 
-                debugger
-
                 return product
             })
             .then(product => {
-
-                return product.story.forEach(story => {
+                product.story.forEach(story => {
                     story.id = story._id.toString()
 
                     delete story.__v
                     delete story._id
                     delete story.product
 
-                    debugger
                 })
+
+                return product
             })
     },
 
@@ -431,15 +453,15 @@ const logic = {
 
                 return Product.findById(product)
                     .then(product => {
-                        if(!product) throw Error('Product not found')
+                        if (!product) throw Error('Product not found')
 
                         product.story.push(storyId)
 
                         return product.save()
-                })
-                .then(() => {
-                    return storyId
-                })
+                    })
+                    .then(() => {
+                        return storyId
+                    })
             })
     },
 
@@ -514,81 +536,110 @@ const logic = {
             .then(() => storyId)
 
 
-            // const storyId = story.id
+        // const storyId = story.id
 
-            // return Product.findById({
-            //     _id: product
-            // })
-            // .then(product => {
-            //     product.story.push(storyId)
-            //     product.save()
-            // })
-            // .then(() => storyId)
-            
+        // return Product.findById({
+        //     _id: product
+        // })
+        // .then(product => {
+        //     product.story.push(storyId)
+        //     product.save()
+        // })
+        // .then(() => storyId)
+
     },
 
 
-    listAllStories(productId) {
+    // listAllStoriesByProductId(productId) {
+    //     return Promise.resolve()
+    //         .then(() => {
+    //             return Product.findById(productId).populate({
+    //                 path: 'story',
+    //                 options: { sort: { like: -1  } }
+    //             })
+    //             .lean()
+    //         })
+    //         .then(product => {
+    //             if (!product) throw new LogicError(`product with ${productId} product does not exist`)
+
+    //             const stories = product.story
+
+    //             if (stories) {
+    //                 stories.forEach(story => {
+    //                     story.id = story._id.toString()
+
+    //                     delete story._id
+    //                     delete story.__v
+    //                 })
+    //             }
+
+    //             return stories || []
+    //         })
+    // },
+
+    // listAllProducts() {
+    //     return Promise.resolve()
+    //         .then(() => {
+    //             return Product.find({}, {
+    //                 __v: 0
+    //             }).populate('user').sort({ date: -1 }).lean()
+    //         })
+    //         .then(products => {
+    //             if (products) {
+    //                 products.forEach(product => {
+    //                     product.id = product._id.toString()
+
+    //                     delete product._id
+    //                 })
+    //             }
+    //             return products || []
+    //         })
+    // },
+
+    listAllStoriesByProductId(productId) {
         return Promise.resolve()
             .then(() => {
                 return Product.findById(productId)
+                    .populate([
+                        {
+                            path: 'user',
+                            select: 'name surname -_id'
+                        },
+                        {
+                            path: 'story',
+                            select: 'text like date',
+                            options: { sort: { like: -1 }, lean: true },
+                            populate: {
+                                path: 'user',
+                                select: 'name surname -_id',
+                                options: { lean: true }
+                            }
+                        }
+                    ])
+                    .lean()
             })
             .then(product => {
-
                 if (!product) throw new LogicError(`product with ${productId} product does not exist`)
+
+                product.id = product._id.toString()
+
+                delete product._id
+                delete product.__v
+
+                const stories = product.story
+
+                if (stories) {
+                    stories.forEach(story => {
+                        story.id = story._id.toString()
+
+                        delete story._id
+                        delete story.__v
+                    })
+                }
+
                 debugger
-                const stories = product.story
 
-                return Promise.all(stories.map(story => Story.findById(story)))
-            })
-
-            .then(stories => {
-
-                if (stories) {
-                    debugger
-                    stories.forEach(story => {
-                        story.id = story._id.toString()
-
-                        delete story._id
-                        delete story.__v
-                    })
-                }
-                return stories || []
-            })
-    },
-
-    listStories(email, productId) {
-        return Promise.resolve()
-            .then(() => {
-                this._validateEmail(email)
-                return User.findOne({
-                    email
-                })
-            })
-            .then(user => {
-
-                if (!user) throw new LogicError(`user with ${email} email does not exist`)
-                return Product.findById(productId)
-            })
-            .then(product => {
-
-                if (!product) throw new LogicError(`product with ${productId} product does not exist`)
-
-                const stories = product.story
-
-                return Promise.all(stories.map(story => Story.findById(story)))
-            })
-            .then(stories => {
-
-                if (stories) {
-                    stories.forEach(story => {
-                        story.id = story._id.toString()
-
-                        delete story._id
-                        delete story.__v
-                    })
-                }
-                return stories || []
+                return product || []
             })
     },
 

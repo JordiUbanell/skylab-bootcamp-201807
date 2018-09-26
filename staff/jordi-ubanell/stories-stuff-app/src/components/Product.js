@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-// import { withRouter } from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 
 import logic from '../logic'
 import '../css/App.css'
@@ -9,7 +9,8 @@ class Product extends Component {
         title: '',
         link: '',
         photo: '',
-        text: ''
+        text: '',
+        productId: ''
     }
 
     saveTitle = (event) => this.setState({ title: event.target.value })
@@ -21,13 +22,17 @@ class Product extends Component {
         event.preventDefault()
 
         const { title, link, photo, text } = this.state
-
         logic.addProduct(title, photo, link)
             .then(product => {
+                debugger
                 return logic.addStory(text, undefined, product.id)
             })
-            .then(res => {
-                alert(res)
+            // .then(productId => {
+            //     this.setState({productId: productId})
+            // })
+            .then(product => {
+                //TODO: Redirecto user to the product/productId "page"
+                return <Redirect to = {`/post/${product.id}`} />
             })
             .catch(({ message }) => {
                 //TODO: show error on panel...
