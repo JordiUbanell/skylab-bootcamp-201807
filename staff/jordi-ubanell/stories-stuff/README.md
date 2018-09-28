@@ -1,5 +1,7 @@
 [Jordi](https://github.com/JordiUbanell)
 
+## [Documentation](docs/README.md)
+
 
 I have the idea to do this project based in my afficion to find selected objects in the Wallapop app, i collect some amazing vintage objects and some stories arround (you can find literally anything of anytime there). This amount of things also make me conscient of object we buy and discart and our ecologic ////// empremta ecològica. 
 
